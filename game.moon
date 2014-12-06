@@ -68,7 +68,7 @@ class World
     @stage_canvas = g.newCanvas @stage_extent.w, @stage_extent.h
     @stage_canvas\setFilter "nearest", "nearest"
 
-    @top_quad = g.newQuad 0, 0, @viewport.w, @stage_height,
+    @top_quad = g.newQuad @stage_height, 0, @viewport.w - @stage_height * 2, @stage_height,
       @stage_canvas\getDimensions!
 
     @right_quad = g.newQuad @viewport.w, 0, @viewport.h, @stage_height,
@@ -88,22 +88,38 @@ class World
     @edge_right = Edge @stage_extent.w - 5, 0, 5, @stage_height
 
     -- create mesh
-    @left_mesh = @create_mesh!
 
-  create_mesh: (divisions=3) =>
+    -- top
+    top_left = Box(0, 0, @stage_height, @stage_height) / @stage_extent
+    top_right = Box(@viewport.w - @stage_height, 0, @stage_height, @stage_height) / @stage_extent
+
+    -- right
+    @top_left_mesh = @create_corner_mesh 3, true, top_left\unpack2!
+    @top_right_mesh = @create_corner_mesh 3, false, top_right\unpack2!
+
+  create_corner_mesh: (divisions=3, left=true, s1=0, t1=0, s2=1, t2=1) =>
     assert divisions > 1
     verts = {}
+
+    ds = s2 - s1
+    dt = t2 - t1
 
     for y=0,divisions
       py = y / divisions
 
       for x=0,divisions
         px = x / divisions
-        vx = px * (1 - py)
+        vx = if left
+          px * (1 - py) + py
+        else
+          px * (1 - py)
+
+        s = s1 + px * ds
+        t = t1 + py * dt
 
         table.insert verts, {
           vx, py
-          px, py
+          s, t
           255,255,255
         }
 
@@ -165,45 +181,35 @@ class World
     g.draw @stage_canvas, @slice_quad, 0, 0
 
   draw: =>
+    g.setCanvas @stage_canvas
+    @draw_stage!
+    g.setCanvas!
 
-    -- g.setCanvas @stage_canvas
-    -- @draw_stage!
-    -- g.setCanvas!
+    g.setCanvas @stage_buffer
+    @draw_stage_buffer!
+    g.setCanvas!
 
-    -- g.setCanvas @stage_buffer
-    -- @draw_stage_buffer!
-    -- g.setCanvas!
-
-    -- @viewport\apply!
-
-    -- @hud_box\draw {0,0,0, 100}
-
-    -- canvas = @stage_buffer
-    -- for i, quad in ipairs {@top_quad, @right_quad, @bottom_quad, @left_quad}
-    --   y = (10 + @stage_height) * (i - 1)
-    --   g.draw canvas, quad, 10, y
-
-    -- @viewport\pop!
+    @viewport\apply!
+    @hud_box\draw {0,0,0, 100}
+    canvas = @stage_buffer
+    g.draw canvas, @top_quad, @stage_height, 0
 
     g.push!
-    g.translate 100, 100
-
-    g.scale 200, 200
-    @left_mesh\setTexture @hi.tex
-    g.draw @left_mesh, 0, 0
-
+    g.translate 0,0
+    g.scale @stage_height, @stage_height
+    @top_left_mesh\setTexture @stage_buffer
+    g.draw @top_left_mesh, 0, 0
     g.pop!
 
-    g.setWireframe true
     g.push!
-    g.translate 320, 100
-
-    g.scale 200, 200
-    @left_mesh\setTexture @hi.tex
-    g.draw @left_mesh, 0, 0
-
+    g.translate @viewport.w - @stage_height, 0
+    g.scale @stage_height, @stage_height
+    @top_right_mesh\setTexture @stage_buffer
+    g.draw @top_right_mesh, 0, 0
     g.pop!
-    g.setWireframe false
+
+
+    @viewport\pop!
 
 
   update: (dt) =>
