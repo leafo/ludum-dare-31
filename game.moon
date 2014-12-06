@@ -29,14 +29,13 @@ class Enemy extends Entity
     thing.alive = false
     print "enemy taking hit"
 
-
 class World
   top: 0
   bottom: 200
   time: 0
 
   stage_height: 80
-  stage_speed: 0.01
+  stage_speed: 0.05
 
   mousepressed: (x, y, button) =>
     x, y = @viewport\unproject x, y
@@ -80,7 +79,7 @@ class World
 
   new: =>
     @calculate!
-    @background = StarField @stage_extent\unpack!
+    @background = StarField @
 
     @entities = DrawList!
     @bullets = DrawList!
@@ -139,8 +138,9 @@ class World
     @entities\update dt, @
     @bullets\update dt, @
     @seqs\update dt, @
+    @background\update dt, @
 
-    @time += dt * (math.sin(love.timer.getTime! * 5) + 2) * @stage_speed
+    @time += dt * @stage_speed
     @time -= 1 if @time > 1
 
     @collider\clear!
