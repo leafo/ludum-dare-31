@@ -5,6 +5,8 @@ if pcall(-> require"inotify")
 
 {graphics: g} = love
 
+import Game from require "game"
+
 export DEBUG = false
 
 load_font = (img, chars)->
