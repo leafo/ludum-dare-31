@@ -11,9 +11,9 @@ class Bullet extends Entity
 
   color: { 0, 255, 100 }
 
-  update: (...) =>
-    super ...
-    true
+  update: (dt, world) =>
+    super dt, world
+    world.stage_extent\touches_box @
 
   draw: =>
     super @color

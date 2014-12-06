@@ -36,6 +36,7 @@ class World
   time: 0
 
   stage_height: 80
+  stage_speed: 0.01
 
   mousepressed: (x, y, button) =>
     x, y = @viewport\unproject x, y
@@ -56,7 +57,6 @@ class World
 
     @stage_canvas = g.newCanvas @stage_extent.w, @stage_extent.h
     @stage_canvas\setFilter "nearest", "nearest"
-
 
     @top_quad = g.newQuad 0, 0, @viewport.w, @stage_height,
       @stage_canvas\getDimensions!
@@ -85,24 +85,25 @@ class World
     @entities = DrawList!
     @bullets = DrawList!
 
-    @player = Player 10, 10
+    @player = Player 50, @stage_height/3
     @collider = UniformGrid!
     @seqs = DrawList!
 
     @entities\add @player
 
-  draw: =>
-    g.setCanvas @stage_canvas
-
+  draw_stage: =>
     @stage_canvas\clear 10, 13, 20
 
     @background\draw!
     @entities\draw!
     @bullets\draw!
-    g.setCanvas!
 
+    COLOR\push {168, 219, 255}
+    g.rectangle "fill", 0, 0, 5, @stage_height
+    g.rectangle "fill", @stage_extent.w - 5, 0, 5, @stage_height
+    COLOR\pop!
 
-    g.setCanvas @stage_buffer
+  draw_stage_buffer: =>
     @stage_buffer\clear 255, 0,0
 
     @slice_quad or= g.newQuad 0, 0, 0,0, @stage_buffer\getDimensions!
@@ -113,26 +114,33 @@ class World
     @slice_quad\setViewport @stage_extent.w - offset, 0, offset, @stage_height
     g.draw @stage_canvas, @slice_quad, 0, 0
 
+  draw: =>
+    g.setCanvas @stage_canvas
+    @draw_stage!
     g.setCanvas!
 
+    g.setCanvas @stage_buffer
+    @draw_stage_buffer!
+    g.setCanvas!
 
     @viewport\apply!
 
     @hud_box\draw {0,0,0, 100}
 
-    @viewport\pop!
-
     canvas = @stage_buffer
     for i, quad in ipairs {@top_quad, @right_quad, @bottom_quad, @left_quad}
-      y = (10 + @stage_height) * i
+      y = (10 + @stage_height) * (i - 1)
       g.draw canvas, quad, 10, y
+
+    @viewport\pop!
+
 
   update: (dt) =>
     @entities\update dt, @
     @bullets\update dt, @
     @seqs\update dt, @
 
-    @time += dt / 10
+    @time += dt * (math.sin(love.timer.getTime! * 5) + 2) * @stage_speed
     @time -= 1 if @time > 1
 
     @collider\clear!
