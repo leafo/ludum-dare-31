@@ -1,4 +1,6 @@
 
+{graphics: g} = love
+
 class Enemy extends Entity
   is_enemy: true
   color: { 255, 100, 100 }
@@ -42,7 +44,7 @@ class Player extends Entity
   speed: 100
 
   w: 10
-  h: 10
+  h: 5
 
   new: (...) =>
     super ...
@@ -63,8 +65,10 @@ class Player extends Entity
 
   shoot: =>
     return if @shoot_timer
-    print "Shooting"
-    @world.bullets\add Bullet @x, @y
+    x = @x + @w / 2 - Bullet.w / 2
+    y = @y + @h / 2 - Bullet.h / 2
+
+    @world.bullets\add Bullet x,y
 
     @shoot_timer = @seqs\add Sequence ->
       wait 0.1
@@ -72,7 +76,12 @@ class Player extends Entity
       @shoot_timer = nil
 
   draw: =>
-    super @color
+    g.polygon "line",
+      @x, @y - @h / 2,
+      @x + @w * 1.5, @y + @h / 2,
+      @x, @y + @h + @h / 2
+
+    super {255,100,100,100}
 
 class World
   top: 0
