@@ -1,4 +1,10 @@
 
+graphics_err_msg = table.concat {
+  "Your graphics card doesn't support this game."
+  "Leave a comment on Ludum Dare site and I'll code a workaround."
+  "Otherwise you'll have to user another computer."
+}, "\n"
+
 {graphics: g} = love
 
 class Enemy extends Entity
@@ -87,12 +93,43 @@ class World
   top: 0
   bottom: 200
 
+  stage_height: 80
+
   mousepressed: (x, y, button) =>
     x, y = @viewport\unproject x, y
     @entities\add Enemy x, y
 
-  new: =>
+  calculate: =>
     @viewport = EffectViewport scale: GAME_CONFIG.scale
+
+    x1, y1, x2, y2 = @viewport\unpack2!
+    x1 += @stage_height
+    y1 += @stage_height
+    x2 -= @stage_height
+    y2 -= @stage_height
+
+    @hud_box = Box x1, y1, x2 - x1, y2 - y1
+    @stage_extent = Box 0, 0, (@viewport.w + @viewport.h ) * 2, @stage_height
+    assert love.graphics.isSupported("npot"), graphics_err_msg
+
+    print @stage_extent
+    @stage_canvas = g.newCanvas @stage_extent.w, @stage_extent.h
+    @stage_canvas\setFilter "nearest", "nearest"
+
+    @top_quad = g.newQuad 0, 0, @viewport.w, @stage_height,
+      @stage_canvas\getDimensions!
+
+    @right_quad = g.newQuad @viewport.w, 0, @viewport.h, @stage_height,
+      @stage_canvas\getDimensions!
+
+    @bottom_quad = g.newQuad @viewport.w + @viewport.h, 0, @viewport.w, @stage_height,
+      @stage_canvas\getDimensions!
+
+    @left_quad = g.newQuad @viewport.w * 2 + @viewport.h, 0, @viewport.h, @stage_height,
+      @stage_canvas\getDimensions!
+
+  new: =>
+    @calculate!
 
     @entities = DrawList!
     @bullets = DrawList!
@@ -104,13 +141,22 @@ class World
     @entities\add @player
 
   draw: =>
-    @viewport\apply!
-    love.graphics.print "hello world", 10, 10
+    g.setCanvas @stage_canvas
 
+    @stage_canvas\clear 10, 13, 20
     @entities\draw!
     @bullets\draw!
+    g.setCanvas!
+
+    @viewport\apply!
+
+    @hud_box\draw {0,0,0, 100}
 
     @viewport\pop!
+
+    for i, quad in ipairs {@top_quad, @right_quad, @bottom_quad, @left_quad}
+      y = (10 + @stage_height) * i
+      g.draw @stage_canvas, quad, 10, y
 
   update: (dt) =>
     @entities\update dt, @

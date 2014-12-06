@@ -14,7 +14,7 @@ load_font = (img, chars)->
   g.newImageFont font_image.tex, chars
 
 love.load = ->
-  g.setBackgroundColor 13,15,12
+  g.setBackgroundColor 234, 240, 245
 
   export CONTROLLER = Controller GAME_CONFIG.keys
   export DISPATCHER = Dispatcher World!
