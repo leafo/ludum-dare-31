@@ -10,6 +10,15 @@ graphics_err_msg = table.concat {
 import StarField from require "background"
 import Player from require "player"
 
+class Edge extends Box
+  color: {168, 219, 255}
+
+  draw: =>
+    super @color
+
+  update: (dt) =>
+    true
+
 class Enemy extends Entity
   is_enemy: true
   color: { 255, 100, 100 }
@@ -77,6 +86,9 @@ class World
     @stage_buffer = g.newCanvas @stage_extent.w, @stage_extent.h
     @stage_buffer\setFilter "nearest", "nearest"
 
+    @edge_left = Edge 0, 0, 5, @stage_height
+    @edge_right = Edge @stage_extent.w - 5, 0, 5, @stage_height
+
   new: =>
     @calculate!
     @background = StarField @
@@ -89,6 +101,8 @@ class World
     @seqs = DrawList!
 
     @entities\add @player
+    @entities\add @edge_left
+    @entities\add @edge_right
 
   draw_stage: =>
     @stage_canvas\clear 10, 13, 20
@@ -96,11 +110,6 @@ class World
     @background\draw!
     @entities\draw!
     @bullets\draw!
-
-    COLOR\push {168, 219, 255}
-    g.rectangle "fill", 0, 0, 5, @stage_height
-    g.rectangle "fill", @stage_extent.w - 5, 0, 5, @stage_height
-    COLOR\pop!
 
   draw_stage_buffer: =>
     @stage_buffer\clear 255, 0,0
@@ -159,6 +168,7 @@ class World
 
     @viewport\update dt
 
-  collides: => false
+  collides: (thing) =>
+    not thing\touches_box @stage_extent
 
 { :World }
