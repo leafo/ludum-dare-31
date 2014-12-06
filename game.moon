@@ -7,6 +7,8 @@ graphics_err_msg = table.concat {
 
 {graphics: g} = love
 
+import StarField from require "background"
+
 class Enemy extends Entity
   is_enemy: true
   color: { 255, 100, 100 }
@@ -130,6 +132,7 @@ class World
 
   new: =>
     @calculate!
+    @background = StarField @stage_extent\unpack!
 
     @entities = DrawList!
     @bullets = DrawList!
@@ -144,6 +147,8 @@ class World
     g.setCanvas @stage_canvas
 
     @stage_canvas\clear 10, 13, 20
+
+    @background\draw!
     @entities\draw!
     @bullets\draw!
     g.setCanvas!
