@@ -33,6 +33,7 @@ class Enemy extends Entity
 class World
   top: 0
   bottom: 200
+  time: 0
 
   stage_height: 80
 
@@ -53,9 +54,9 @@ class World
     @stage_extent = Box 0, 0, (@viewport.w + @viewport.h ) * 2, @stage_height
     assert love.graphics.isSupported("npot"), graphics_err_msg
 
-    print @stage_extent
     @stage_canvas = g.newCanvas @stage_extent.w, @stage_extent.h
     @stage_canvas\setFilter "nearest", "nearest"
+
 
     @top_quad = g.newQuad 0, 0, @viewport.w, @stage_height,
       @stage_canvas\getDimensions!
@@ -68,6 +69,14 @@ class World
 
     @left_quad = g.newQuad @viewport.w * 2 + @viewport.h, 0, @viewport.h, @stage_height,
       @stage_canvas\getDimensions!
+
+
+    q = g.newQuad 10, 10, 50, 50, 100, 100
+    print q\getViewport!
+
+    -- buffer holds time adjusted stage canvas
+    @stage_buffer = g.newCanvas @stage_extent.w, @stage_extent.h
+    @stage_buffer\setFilter "nearest", "nearest"
 
   new: =>
     @calculate!
@@ -92,20 +101,39 @@ class World
     @bullets\draw!
     g.setCanvas!
 
+
+    g.setCanvas @stage_buffer
+    @stage_buffer\clear 255, 0,0
+
+    @slice_quad or= g.newQuad 0, 0, 0,0, @stage_buffer\getDimensions!
+    offset = @time * @stage_extent.w
+    @slice_quad\setViewport 0, 0, @stage_extent.w - offset, @stage_height
+    g.draw @stage_canvas, @slice_quad, offset, 0
+
+    @slice_quad\setViewport @stage_extent.w - offset, 0, offset, @stage_height
+    g.draw @stage_canvas, @slice_quad, 0, 0
+
+    g.setCanvas!
+
+
     @viewport\apply!
 
     @hud_box\draw {0,0,0, 100}
 
     @viewport\pop!
 
+    canvas = @stage_buffer
     for i, quad in ipairs {@top_quad, @right_quad, @bottom_quad, @left_quad}
       y = (10 + @stage_height) * i
-      g.draw @stage_canvas, quad, 10, y
+      g.draw canvas, quad, 10, y
 
   update: (dt) =>
     @entities\update dt, @
     @bullets\update dt, @
     @seqs\update dt, @
+
+    @time += dt / 10
+    @time -= 1 if @time > 1
 
     @collider\clear!
     for e in *@entities
