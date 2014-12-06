@@ -5,7 +5,7 @@ if pcall(-> require"inotify")
 
 {graphics: g} = love
 
-import Game from require "game"
+import World from require "game"
 
 export DEBUG = false
 
@@ -16,6 +16,7 @@ load_font = (img, chars)->
 love.load = ->
   g.setBackgroundColor 13,15,12
 
-  export DISPATCHER = Dispatcher Game!
+  export CONTROLLER = Controller GAME_CONFIG.keys
+  export DISPATCHER = Dispatcher World!
   DISPATCHER\bind love
 
