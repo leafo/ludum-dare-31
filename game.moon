@@ -46,6 +46,7 @@ class World
   stage_height: 80
   stage_speed: 0.05
 
+
   mousepressed: (x, y, button) =>
     x, y = @viewport\unproject x, y
     @entities\add Enemy x, y
@@ -61,6 +62,7 @@ class World
 
     @hud_box = Box x1, y1, x2 - x1, y2 - y1
     @stage_extent = Box 0, 0, (@viewport.w + @viewport.h ) * 2, @stage_height
+
     assert love.graphics.isSupported("npot"), graphics_err_msg
 
     @stage_canvas = g.newCanvas @stage_extent.w, @stage_extent.h
@@ -78,10 +80,6 @@ class World
     @left_quad = g.newQuad @viewport.w * 2 + @viewport.h, 0, @viewport.h, @stage_height,
       @stage_canvas\getDimensions!
 
-
-    q = g.newQuad 10, 10, 50, 50, 100, 100
-    print q\getViewport!
-
     -- buffer holds time adjusted stage canvas
     @stage_buffer = g.newCanvas @stage_extent.w, @stage_extent.h
     @stage_buffer\setFilter "nearest", "nearest"
@@ -89,7 +87,51 @@ class World
     @edge_left = Edge 0, 0, 5, @stage_height
     @edge_right = Edge @stage_extent.w - 5, 0, 5, @stage_height
 
+    -- create mesh
+    @left_mesh = @create_mesh!
+
+  create_mesh: (divisions=3) =>
+    assert divisions > 1
+    verts = {}
+
+    for y=0,divisions
+      py = y / divisions
+
+      for x=0,divisions
+        px = x / divisions
+        vx = px * (1 - py)
+
+        table.insert verts, {
+          vx, py
+          px, py
+          255,255,255
+        }
+
+    mesh = g.newMesh verts, nil, "triangles"
+    vertex_map = {}
+
+    ww = divisions + 1
+
+    for i=1,mesh\getVertexCount! - ww
+      continue if i % ww == 0
+      table.insert vertex_map, i
+      table.insert vertex_map, i + 1
+      table.insert vertex_map, i + ww
+
+      table.insert vertex_map, i + 1
+      table.insert vertex_map, i + ww
+      table.insert vertex_map, i + ww + 1
+
+      nil
+
+    mesh\setVertexMap vertex_map
+
+    mesh
+
   new: =>
+    @hi = imgfy "images/hi.png"
+    @hi.tex\setFilter "linear", "linear"
+
     @calculate!
     @background = StarField @
 
@@ -123,24 +165,45 @@ class World
     g.draw @stage_canvas, @slice_quad, 0, 0
 
   draw: =>
-    g.setCanvas @stage_canvas
-    @draw_stage!
-    g.setCanvas!
 
-    g.setCanvas @stage_buffer
-    @draw_stage_buffer!
-    g.setCanvas!
+    -- g.setCanvas @stage_canvas
+    -- @draw_stage!
+    -- g.setCanvas!
 
-    @viewport\apply!
+    -- g.setCanvas @stage_buffer
+    -- @draw_stage_buffer!
+    -- g.setCanvas!
 
-    @hud_box\draw {0,0,0, 100}
+    -- @viewport\apply!
 
-    canvas = @stage_buffer
-    for i, quad in ipairs {@top_quad, @right_quad, @bottom_quad, @left_quad}
-      y = (10 + @stage_height) * (i - 1)
-      g.draw canvas, quad, 10, y
+    -- @hud_box\draw {0,0,0, 100}
 
-    @viewport\pop!
+    -- canvas = @stage_buffer
+    -- for i, quad in ipairs {@top_quad, @right_quad, @bottom_quad, @left_quad}
+    --   y = (10 + @stage_height) * (i - 1)
+    --   g.draw canvas, quad, 10, y
+
+    -- @viewport\pop!
+
+    g.push!
+    g.translate 100, 100
+
+    g.scale 200, 200
+    @left_mesh\setTexture @hi.tex
+    g.draw @left_mesh, 0, 0
+
+    g.pop!
+
+    g.setWireframe true
+    g.push!
+    g.translate 320, 100
+
+    g.scale 200, 200
+    @left_mesh\setTexture @hi.tex
+    g.draw @left_mesh, 0, 0
+
+    g.pop!
+    g.setWireframe false
 
 
   update: (dt) =>
@@ -157,7 +220,6 @@ class World
       continue unless e.alive
       continue unless e.w -- is a box
       @collider\add e
-
 
     -- see if bullets hitting anything
     for b in *@bullets
