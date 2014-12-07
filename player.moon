@@ -134,6 +134,8 @@ class Option extends Entity
     g.pop!
 
 class Player extends Entity
+  mixin HasEffects
+
   color: {255, 255, 255}
   is_player: true
   speed: 60
@@ -179,19 +181,28 @@ class Player extends Entity
     return unless position
     @options\add Option @, position, @center!
 
-  update: (dt, @world) =>
-    dir = CONTROLLER\movement_vector!
-    move = dir * (dt * (@speed + @upgrades.speed * 25))
-    dx, dy = unpack move
+  die: =>
+    return if @dying
+    @dying = true
+    @effects\add BlowOutEffect 0.8, ->
+      @world\end_anim!
+      @alive = false
 
-    @fit_move dx, dy, @world
+  update: (dt, @world) =>
+    unless @dying
+      dir = CONTROLLER\movement_vector!
+      move = dir * (dt * (@speed + @upgrades.speed * 25))
+      dx, dy = unpack move
+
+      @fit_move dx, dy, @world
+
+      if CONTROLLER\is_down "shoot"
+        @shoot!
+
     @seqs\update dt
     @options\update dt, @world
 
-    if CONTROLLER\is_down "shoot"
-      @shoot!
-
-    true
+    @alive
 
   shoot: =>
     for option in *@options

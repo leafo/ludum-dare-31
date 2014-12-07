@@ -8,5 +8,13 @@
    eJxjYMANGIcIpjWglz20BsPFH6NgFJAKhkvap7Y/Bqpcpba91Ko7Brouo9QfAJXbAH0=
   </data>
  </layer>
- <imagelayer name="Image Layer 1" x="16" y="23"/>
+ <layer name="Solid" width="50" height="10">
+  <properties>
+   <property name="hidden" value="true"/>
+   <property name="solid" value="true"/>
+  </properties>
+  <data encoding="base64" compression="zlib">
+   eJxjYMANBIcIpjWglz20BsPFH6NgFJAKhkvap7Y/Bqpcpba91Ko7Brouo9QfAHcSCD0=
+  </data>
+ </layer>
 </map>

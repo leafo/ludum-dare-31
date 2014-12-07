@@ -51,6 +51,8 @@ class Edge extends Box
     @seq\update dt
     true
 
+class ScrollingMap extends TileMap
+
 class World
   top: 0
   bottom: 200
@@ -58,6 +60,8 @@ class World
 
   stage_height: 80
   stage_speed: 0.05
+  time_mult: 0
+  shake: 0
 
   mousepressed: (x, y, button) =>
     x,y = @viewport\unproject x,y
@@ -217,13 +221,24 @@ class World
 
     @entities\add Powerup 100, 50
 
-    @map = TileMap\from_tiled "maps.test", {
+    @map = ScrollingMap\from_tiled "maps.test", {
       object: (o) ->
     }
 
     @map_box = @map\to_box!
 
+  end_anim: (callback) =>
+    @seqs\add Sequence ->
+      tween @, 0.2, shake: 1
+      tween @, 5.0, time_mult: 50, shake: 1
+
   draw_stage: =>
+    g.push!
+    if @shake > 0
+      t = love.timer.getTime!
+      tx, ty = love.math.noise(t*4)*10, love.math.noise(-t*4)*10
+      g.translate tx * @shake, ty * @shake
+
     @stage_canvas\clear 10, 13, 20
 
     @background\draw!
@@ -236,6 +251,7 @@ class World
     g.setBlendMode "additive"
     @particles\draw!
     g.setBlendMode blend
+    g.pop!
 
   draw_stage_buffer: =>
     @stage_buffer\clear 255, 0,0
@@ -311,9 +327,8 @@ class World
     @background\update dt, @
     @hud\update dt
 
-    @time += dt * @stage_speed
+    @time += dt * @stage_speed * @time_mult
     @time -= 1 if @time > 1
-    @time = 0
 
     @collider\clear!
     for e in *@entities
@@ -328,11 +343,15 @@ class World
         if thing.take_hit
           thing\take_hit b, @
 
-    -- see if player hitting anything
     if @player.alive
+      -- see if player hitting object
       for thing in *@collider\get_touching @player
         if thing.take_hit
           thing\take_hit @player, @
+
+      -- see if player hitting map
+      if @map\collides @player
+        @player\die!
 
     @viewport\update dt
 
