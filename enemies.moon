@@ -38,8 +38,8 @@ class Enemy extends Entity
     super ...
     @alive = true
     @vel = Vec2d -@speed, 0
-    @effects = EffectList!
 
+    @effects = EffectList!
     @effects\add PopinEffect 0.2
     @effects\add FadeInEffect 0.2
 
@@ -48,6 +48,26 @@ class Enemy extends Entity
     @alive = false if @x < -100
     @alive
 
+  draw: =>
+    error "replace me"
+
+  die: =>
+    @world.hud\add_score @score
+    @dying = true
+    @world.particles\add ExplosionEmitter @world, @center!
+    @effects\add BlowOutEffect 0.2, -> @alive = false
+    if @is_powered
+      import Powerup from require "player"
+      @world.entities\add Powerup @center!
+
+  take_hit: (thing, world) =>
+    return if @dying
+    @die!
+    if thing.is_bullet
+      thing.take_hit and thing\take_hit @, world
+
+
+class Drone extends Enemy
   draw: =>
     t = love.timer.getTime!
     if @is_powered
@@ -80,22 +100,9 @@ class Enemy extends Entity
     g.pop!
 
     if DEBUG
-      super {255,0,0, 100}
-
-  die: =>
-    @world.hud\add_score @score
-    @dying = true
-    @world.particles\add ExplosionEmitter @world, @center!
-    @effects\add BlowOutEffect 0.2, -> @alive = false
-    if @is_powered
-      import Powerup from require "player"
-      @world.entities\add Powerup @center!
-
-  take_hit: (thing, world) =>
-    return if @dying
-    @die!
-    if thing.is_bullet
-      thing.take_hit and thing\take_hit @, world
+      COLOR\push 255,0,0, 100
+      g.rectangle "fill", @unpack!
+      COLOR\pop!
 
 class Spawner extends Sequence
   enemy_types: {
@@ -134,13 +141,15 @@ class ChainSpawner extends Spawner
   spacing: 23
 
   new: (@world, @x, @y) =>
+    enemy_cls = Drone
+
     super ->
       time_offset = love.math.random! * math.pi * 2
       for i=0,@count - 1
-        ox = Enemy.w / 2
-        oy = Enemy.h / 2
+        ox = enemy_cls.w / 2
+        oy = enemy_cls.h / 2
 
-        enemy = Enemy @x + i * @spacing - ox,
+        enemy = enemy_cls @x + i * @spacing - ox,
           @y + @spacing * math.sin(i * math.pi / 5 + time_offset) / 2 - oy
 
         if i == @count - 1
@@ -156,6 +165,6 @@ class SingleSpawner extends Spawner
       wait 0.1 -- lame hack
 
   add_enemy: =>
-    @world.entities\add Enemy @x, @y
+    @world.entities\add enemy_cls @x, @y
 
 { :Enemy, :Spawner, :ChainSpawner, :SingleSpawner }
