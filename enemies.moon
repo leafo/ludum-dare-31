@@ -109,14 +109,16 @@ class Spawner extends Sequence
     @range.x = @x - @range.w
 
   draw: =>
-    if DEBUG
+    if DEBUG and @world
       COLOR\push 0,100,255
       g.setPointSize 5
-      g.point @x, @y
+      g.point @x - @world.map.scroll_offset, @y
       g.rectangle "line", @range\unpack!
       COLOR\pop!
 
-  update: (dt, world) =>
+  update: (dt, @world) =>
+    @range.x = @x - @range.w - world.map.scroll_offset
+
     if not @active
       for touching in *world.collider\get_touching @range
         continue unless touching.is_player
