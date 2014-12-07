@@ -53,7 +53,8 @@ class Enemy extends Entity
 
     -- super @core_color
     COLOR\push @core_color
-    g.rectangle "fill", cx - @inner_radius / 2, cy - @inner_radius / 2, @inner_radius, @inner_radius
+    g.rectangle "fill", cx - @inner_radius / 2, cy - @inner_radius / 2,
+      @inner_radius, @inner_radius
     COLOR\pop!
 
     if @is_powered

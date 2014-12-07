@@ -60,7 +60,7 @@ class World
   stage_speed: 0.05
 
   mousepressed: (x, y, button) =>
-    x, y = @viewport\unproject x, y
+    @player\add_option!
 
   calculate: =>
     @viewport = EffectViewport scale: GAME_CONFIG.scale
