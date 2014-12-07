@@ -183,7 +183,22 @@ class Player extends Entity
     @options\add Option @, position, @center!
 
   die: =>
+    return if @immune
+
+    if @shielded
+      @immune = true
+      @shielded = false
+      print "audio lose shield"
+
+      @seqs\add Sequence ->
+        wait 0.1
+        @immune = false
+
+      return
+
     return if @dying
+    print "audio explode"
+
     @dying = true
     @effects\add BlowOutEffect 0.8, ->
       @world\end_anim!

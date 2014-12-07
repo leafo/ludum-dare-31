@@ -67,6 +67,11 @@ class ScrollingMap extends TileMap
     super x1, y1, x2, y2
 
   update: (dt, @world) =>
+    @target_speed = if love.keyboard.isDown "e"
+      500
+    else
+      10
+
     super dt
     @speed = smooth_approach @speed, @target_speed, dt
     @scroll_offset += dt * @speed
