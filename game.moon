@@ -212,6 +212,8 @@ class World
 
     @seqs\add Spawner @, 150, @stage_height / 2
 
+    @entities\add Poweup 100, 50
+
   draw_stage: =>
     @stage_canvas\clear 10, 13, 20
 

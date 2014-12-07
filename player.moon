@@ -1,5 +1,30 @@
 {graphics: g} = love
 
+class Poweup extends Entity
+  lazy sprite: => Spriter "images/sprites.png", 16, 16
+  w: 13
+  h: 13
+
+  new: (...) =>
+    super ...
+    @anim = @sprite\seq {3,5}, 0.2
+
+  update: (dt) =>
+    @anim\update dt
+    true
+
+  draw: =>
+    oy = 2 * math.sin(5 * love.timer.getTime!)
+
+
+    blend = g.getBlendMode!
+    g.setBlendMode "additive"
+    @anim\draw @x - 2, @y - 2 + oy
+    g.setBlendMode blend
+
+    if DEBUG
+      super {255, 100,100, 100}
+
 class BulletHitParticle extends ImageParticle
   w: 16
   h: 16
@@ -40,6 +65,7 @@ class Bullet extends Entity
   take_hit: (thing, world) =>
     dir = (Vec2d(@center!) - Vec2d(thing\center!))\normalized!
     world.particles\add BulletHitEmitter dir, world, @center!
+    @alive = false
 
   update: (dt, world) =>
     super dt, world
@@ -174,4 +200,4 @@ class Player extends Entity
     if DEBUG
       super {255,0,0,100}
 
-{:Player}
+{ :Player, :Poweup }
