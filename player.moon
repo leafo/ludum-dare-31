@@ -225,11 +225,14 @@ class Player extends Entity
       return false
 
     @upgrades[what] += 1
+    is_max = @upgrades[what] == @max_upgrades[what]
+
     switch what
       when "option"
         @add_option!
 
-    require("moon").p @upgrades
+    button = @world.hud\find_button what
+    button\set_level @upgrades[what], is_max
     true
 
 

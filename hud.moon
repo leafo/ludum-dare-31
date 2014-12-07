@@ -7,12 +7,22 @@ class Button extends Box
   alive: true
   padding: 2
 
-  new: (@text, @state) =>
+  new: (@label, @state) =>
     font = g.getFont!
-
-    @w = 100
-    @text_w = font\getWidth(text) + @padding * 2
     @h = font\getHeight! + @padding * 2
+    @w = 100
+    @set_level 0
+
+  set_level: (level, is_max) =>
+    font = g.getFont!
+    @text = if is_max
+      "#{@label} : max"
+    elseif level > 0
+      "#{@label} : #{"!"\rep level}"
+    else
+      @label
+
+    @text_w = font\getWidth(@text) + @padding * 2
 
   draw: =>
     if @state == "disabled"
@@ -79,6 +89,11 @@ class Hud extends Box
   add_point: =>
     @points += 1
     @points = math.min @max_points, @points
+
+  find_button: (name) =>
+    for button in *@all_buttons
+      if button.label == name
+        return button
 
   update: (dt) =>
     @bin\update dt

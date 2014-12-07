@@ -63,7 +63,7 @@ class World
     x,y = @viewport\unproject x,y
     for button in *@hud.all_buttons
       if button\touches_pt x - @hud.x, y - @hud.y
-        @player\upgrade button.text
+        @player\upgrade button.label
 
   calculate: =>
     @viewport = EffectViewport scale: GAME_CONFIG.scale
