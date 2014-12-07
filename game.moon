@@ -98,8 +98,39 @@ class World
     top_right = Box(@viewport.w - @stage_height, 0, @stage_height, @stage_height) / @stage_extent
 
     -- right
-    @top_left_mesh = @create_corner_mesh 3, true, top_left\unpack2!
-    @top_right_mesh = @create_corner_mesh 3, false, top_right\unpack2!
+    right_left = Box(@viewport.w, 0, @stage_height, @stage_height) / @stage_extent
+    right_right = Box(@viewport.w + @viewport.h - @stage_height, 0, @stage_height, @stage_height) / @stage_extent
+
+    -- bottom
+    bottom_left = Box(@viewport.w + @viewport.h, 0, @stage_height, @stage_height) / @stage_extent
+    bottom_right = Box(@viewport.w * 2 + @viewport.h - @stage_height, 0, @stage_height, @stage_height) / @stage_extent
+
+    -- left
+    left_left = Box(@viewport.w * 2 + @viewport.h, 0, @stage_height, @stage_height) / @stage_extent
+    left_right = Box(@viewport.w * 2 + @viewport.h * 2 - @stage_height, 0, @stage_height, @stage_height) / @stage_extent
+
+    divs = 3
+
+    @top_left_mesh = @create_corner_mesh divs, true, top_left\unpack2!
+    @top_right_mesh = @create_corner_mesh divs, false, top_right\unpack2!
+
+    @right_left_mesh = @create_corner_mesh divs, true, right_left\unpack2!
+    @right_right_mesh = @create_corner_mesh divs, false, right_right\unpack2!
+
+    @bottom_left_mesh = @create_corner_mesh divs, true, bottom_left\unpack2!
+    @bottom_right_mesh = @create_corner_mesh divs, false, bottom_right\unpack2!
+
+    @left_left_mesh = @create_corner_mesh divs, true, left_left\unpack2!
+    @left_right_mesh = @create_corner_mesh divs, false, left_right\unpack2!
+
+
+  draw_corner_mesh: (mesh, x, y) =>
+    g.push!
+    g.translate x,y
+    g.scale @stage_height, @stage_height
+    mesh\setTexture @stage_buffer
+    g.draw mesh, 0, 0
+    g.pop!
 
   create_corner_mesh: (divisions=3, left=true, s1=0, t1=0, s2=1, t2=1) =>
     assert divisions > 1
@@ -199,43 +230,39 @@ class World
 
     -- top
     g.draw canvas, @top_quad, @stage_height, 0
-
-    g.push!
-    g.translate 0,0
-    g.scale @stage_height, @stage_height
-    @top_left_mesh\setTexture @stage_buffer
-    g.draw @top_left_mesh, 0, 0
-    g.pop!
-
-    g.push!
-    g.translate @viewport.w - @stage_height, 0
-    g.scale @stage_height, @stage_height
-    @top_right_mesh\setTexture @stage_buffer
-    g.draw @top_right_mesh, 0, 0
-    g.pop!
+    @draw_corner_mesh @top_left_mesh, 0,0
+    @draw_corner_mesh @top_right_mesh, @viewport.w - @stage_height, 0
 
     -- right
     g.push!
-    g.translate @viewport.w, @stage_height
-
+    g.translate @viewport.w, 0
     g.rotate math.pi / 2
-    g.draw canvas, @right_quad, 0,0
+
+    g.draw canvas, @right_quad, @stage_height,0
+    @draw_corner_mesh @right_left_mesh, 0,0
+    @draw_corner_mesh @right_right_mesh, @viewport.h - @stage_height, 0
+
     g.pop!
 
     -- bottom
     g.push!
-    g.translate @viewport.w - @stage_height, @viewport.h
+    g.translate @viewport.w, @viewport.h
     g.rotate math.pi
-    g.draw canvas, @bottom_quad, 0,0
+    g.draw canvas, @bottom_quad, @stage_height, 0
+    @draw_corner_mesh @bottom_left_mesh, 0,0
+    @draw_corner_mesh @bottom_right_mesh, @viewport.w - @stage_height, 0
     g.pop!
 
     -- left
     g.push!
-    g.translate 0, @viewport.h - @stage_height
+    g.translate 0, @viewport.h
     g.rotate math.pi * 1.5
-    g.draw canvas, @left_quad, 0,0
-    g.pop!
+    g.draw canvas, @left_quad, @stage_height,0
 
+    @draw_corner_mesh @left_left_mesh, 0,0
+    @draw_corner_mesh @left_right_mesh, @viewport.h - @stage_height, 0
+
+    g.pop!
 
     @viewport\pop!
 
