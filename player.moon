@@ -139,7 +139,7 @@ class Player extends Entity
   color: {255, 255, 255}
   is_player: true
   speed: 60
-  shielded: true
+  shielded: false
 
   w: 10
   h: 5
@@ -188,10 +188,11 @@ class Player extends Entity
     if @shielded
       @immune = true
       @shielded = false
+      @downgrade "shield"
       print "audio lose shield"
 
       @seqs\add Sequence ->
-        wait 0.1
+        wait 1.0
         @immune = false
 
       return
@@ -245,6 +246,9 @@ class Player extends Entity
       x, y + @h + @h / 2
 
   draw: =>
+    if @immune and not duty_on 0.4
+      return
+
     g.polygon "line",
       @x, @y - @h / 2,
       @x + @w * 1.5, @y + @h / 2,
@@ -270,6 +274,11 @@ class Player extends Entity
     if DEBUG
       super {255,0,0,100}
 
+  downgrade: (what) =>
+    @upgrades[what] = math.max 0, @upgrades[what] - 1
+    button = @world.hud\find_button what
+    button\set_level @upgrades[what], false
+
   upgrade: (what) =>
     error "BOOM" if what == "boom"
 
@@ -282,6 +291,8 @@ class Player extends Entity
     switch what
       when "option"
         @add_option!
+      when "shield"
+        @shielded = true
 
     button = @world.hud\find_button what
     button\set_level @upgrades[what], is_max
