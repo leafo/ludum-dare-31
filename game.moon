@@ -68,16 +68,20 @@ class World
     @stage_canvas = g.newCanvas @stage_extent.w, @stage_extent.h
     @stage_canvas\setFilter "nearest", "nearest"
 
-    @top_quad = g.newQuad @stage_height, 0, @viewport.w - @stage_height * 2, @stage_height,
+    @top_quad = g.newQuad @stage_height, 0,
+      @viewport.w - @stage_height * 2, @stage_height,
       @stage_canvas\getDimensions!
 
-    @right_quad = g.newQuad @viewport.w, 0, @viewport.h, @stage_height,
+    @right_quad = g.newQuad @viewport.w + @stage_height, 0,
+      @viewport.h - @stage_height *2 , @stage_height,
       @stage_canvas\getDimensions!
 
-    @bottom_quad = g.newQuad @viewport.w + @viewport.h, 0, @viewport.w, @stage_height,
+    @bottom_quad = g.newQuad @viewport.w + @viewport.h + @stage_height, 0,
+      @viewport.w - @stage_height * 2, @stage_height,
       @stage_canvas\getDimensions!
 
-    @left_quad = g.newQuad @viewport.w * 2 + @viewport.h, 0, @viewport.h, @stage_height,
+    @left_quad = g.newQuad @viewport.w * 2 + @viewport.h + @stage_height, 0,
+      @viewport.h - @stage_height * 2, @stage_height,
       @stage_canvas\getDimensions!
 
     -- buffer holds time adjusted stage canvas
@@ -192,6 +196,8 @@ class World
     @viewport\apply!
     @hud_box\draw {0,0,0, 100}
     canvas = @stage_buffer
+
+    -- top
     g.draw canvas, @top_quad, @stage_height, 0
 
     g.push!
@@ -208,9 +214,30 @@ class World
     g.draw @top_right_mesh, 0, 0
     g.pop!
 
+    -- right
+    g.push!
+    g.translate @viewport.w, @stage_height
+
+    g.rotate math.pi / 2
+    g.draw canvas, @right_quad, 0,0
+    g.pop!
+
+    -- bottom
+    g.push!
+    g.translate @viewport.w - @stage_height, @viewport.h
+    g.rotate math.pi
+    g.draw canvas, @bottom_quad, 0,0
+    g.pop!
+
+    -- left
+    g.push!
+    g.translate 0, @viewport.h - @stage_height
+    g.rotate math.pi * 1.5
+    g.draw canvas, @left_quad, 0,0
+    g.pop!
+
 
     @viewport\pop!
-
 
   update: (dt) =>
     @entities\update dt, @
