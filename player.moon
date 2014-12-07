@@ -4,19 +4,20 @@ class Poweup extends Entity
   lazy sprite: => Spriter "images/sprites.png", 16, 16
   w: 13
   h: 13
+  speed: 10
 
   new: (...) =>
     super ...
     @anim = @sprite\seq {3,5}, 0.2
+    @vel = Vec2d(-@speed, 0)
 
-  update: (dt) =>
+  update: (dt, world) =>
+    @move unpack dt * @vel
     @anim\update dt
-    true
+    @x > -@w
 
   draw: =>
     oy = 2 * math.sin(5 * love.timer.getTime!)
-
-
     blend = g.getBlendMode!
     g.setBlendMode "additive"
     @anim\draw @x - 2, @y - 2 + oy
