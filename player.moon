@@ -1,6 +1,17 @@
 {graphics: g} = love
 
-class HitEmitter
+class BulletHitParticle extends ImageParticle
+  w: 16
+  h: 16
+  quad: 2
+
+  lazy sprite: => Spriter "images/sprites.png", 16, 16
+
+class BulletHitEmitter extends Emitter
+  make_particle: =>
+    with BulletHitParticle @x, @y
+      .vel = Vec2d(0, -100)\random_heading(80)
+      .accel = Vec2d(0, 300)
 
 class Bullet extends Entity
   w: 5
@@ -12,7 +23,7 @@ class Bullet extends Entity
 
   lazy sprite: => Spriter "images/sprites.png", 16, 16
 
-  new: (...) =>
+  new: (@life, ...) =>
     super ...
     @vel[1] = @speed
 
@@ -21,10 +32,16 @@ class Bullet extends Entity
   update: (dt, world) =>
     super dt, world
     world.stage_extent\touches_box @
+    @life -= dt
+    alive = @life > 0
+
+    unless alive
+      world.particles\add BulletHitEmitter world, @center!
+
+    alive
 
   draw: =>
     @sprite\draw 1, @x - @ox, @y - @oy
-    -- super {255, 0, 0}
 
 class Option extends Entity
 
@@ -55,6 +72,9 @@ class Player extends Entity
     super ...
     @seqs = DrawList!
 
+  bullet_life: =>
+    0.2
+
   update: (dt, @world) =>
     dir = CONTROLLER\movement_vector!
     move = dir * (dt * @speed)
@@ -73,7 +93,7 @@ class Player extends Entity
     x = @x + @w / 2 - Bullet.w / 2
     y = @y + @h / 2 - Bullet.h / 2
 
-    @world.bullets\add Bullet x,y
+    @world.bullets\add Bullet @bullet_life!, x,y
 
     @shoot_timer = @seqs\add Sequence ->
       wait 0.3

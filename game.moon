@@ -317,6 +317,7 @@ class World
 
     @time += dt * @stage_speed
     @time -= 1 if @time > 1
+    @time = 0
 
     @collider\clear!
     for e in *@entities
