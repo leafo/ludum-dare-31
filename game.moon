@@ -13,6 +13,8 @@ import Hud from require "hud"
 
 import random, randomNormal from love.math
 
+PAUSED = false
+
 class EdgeParticle extends ImageParticle
   w: 16
   h: 16
@@ -67,7 +69,6 @@ class Enemy extends Entity
     thing.alive = false
     print "enemy taking hit"
 
-
 class World
   top: 0
   bottom: 200
@@ -75,7 +76,6 @@ class World
 
   stage_height: 80
   stage_speed: 0.05
-
 
   mousepressed: (x, y, button) =>
     x, y = @viewport\unproject x, y
@@ -305,6 +305,8 @@ class World
     @viewport\pop!
 
   update: (dt) =>
+    return if PAUSED
+
     @entities\update dt, @
     @bullets\update dt, @
     @particles\update dt, @
@@ -333,5 +335,9 @@ class World
 
   collides: (thing) =>
     not thing\touches_box @stage_extent
+
+  on_key: (key) =>
+    if key == " "
+      PAUSED = not PAUSED
 
 { :World }

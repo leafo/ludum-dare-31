@@ -1,9 +1,16 @@
 {graphics: g} = love
 
+class HitEmitter
+
 class Bullet extends Entity
   w: 5
   h: 5
   speed: 200
+
+  ox: 7
+  oy: 7
+
+  lazy sprite: => Spriter "images/sprites.png", 16, 16
 
   new: (...) =>
     super ...
@@ -16,7 +23,8 @@ class Bullet extends Entity
     world.stage_extent\touches_box @
 
   draw: =>
-    super @color
+    @sprite\draw 1, @x - @ox, @y - @oy
+    -- super {255, 0, 0}
 
 class Option extends Entity
 
@@ -68,8 +76,7 @@ class Player extends Entity
     @world.bullets\add Bullet x,y
 
     @shoot_timer = @seqs\add Sequence ->
-      wait 0.1
-      print "ready"
+      wait 0.3
       @shoot_timer = nil
 
   draw: =>
@@ -79,6 +86,5 @@ class Player extends Entity
       @x, @y + @h + @h / 2
 
     -- super {255,100,100,100}
-
 
 {:Player}
