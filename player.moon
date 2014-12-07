@@ -139,6 +139,7 @@ class Player extends Entity
   color: {255, 255, 255}
   is_player: true
   speed: 60
+  shielded: true
 
   w: 10
   h: 5
@@ -218,11 +219,36 @@ class Player extends Entity
       wait @bullet_rate!
       @shoot_timer = nil
 
+
+  draw_ship_origin: =>
+    x = -@w/2
+    y = -@h/2
+
+    g.polygon "line",
+      x, y - @h / 2,
+      x + @w * 1.5, y + @h / 2,
+      x, y + @h + @h / 2
+
   draw: =>
     g.polygon "line",
       @x, @y - @h / 2,
       @x + @w * 1.5, @y + @h / 2,
       @x, @y + @h + @h / 2
+
+    if @shielded
+      for i=0,1
+        t = love.timer.getTime! + i * 0.5
+        t = t - math.floor(t)
+
+        COLOR\push 99,254,244, (1 - t) * 255
+
+        g.push!
+        g.translate @center!
+        g.scale 1 + t* 1.5, 1 + t * 1.5
+        @draw_ship_origin!
+        g.pop!
+
+        COLOR\pop!
 
     @options\draw!
 
