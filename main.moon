@@ -7,7 +7,7 @@ if pcall(-> require"inotify")
 
 import World from require "game"
 
-export DEBUG = false
+export DEBUG = true
 
 load_font = (img, chars)->
   font_image = imgfy img

@@ -11,4 +11,7 @@
    eJzt2csJACAMRMHYf9Me7EDy3zeQs6JLkGiGH4eSKNRQOv/sPJLv+ZTur6JXK50vduDtAgB66PnwMjVLzHWQwTtDGTndNgvtuCc83hmKzuu2/4Pq9dVE5ofqXRfblQF2
   </data>
  </layer>
+ <objectgroup name="Enemies">
+  <object name="chain" x="293" y="21.5"/>
+ </objectgroup>
 </map>

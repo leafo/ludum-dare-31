@@ -98,16 +98,44 @@ class Enemy extends Entity
       thing.take_hit and thing\take_hit @, world
 
 class Spawner extends Sequence
-  count: 10
+  active: false
 
-  new: (@world, x, y) =>
+  new: (...) =>
+    super ...
+    @range = Box 0,0, 200, 80
+    @range\move_center @x, @y
+    @range.x -= 50
+
+  draw: =>
+    if DEBUG
+      COLOR\push 0,100,255
+      g.setPointSize 5
+      g.point @x, @y
+      g.rectangle "line", @range\unpack!
+      COLOR\pop!
+
+  update: (dt, world) =>
+    if not @active
+      for touching in *world.collider\get_touching @range
+        continue unless touching.is_player
+        @active = true
+
+    if @active
+      return super dt, world
+
+    true
+
+class ChainSpawner extends Spawner
+  count: 5
+
+  new: (@world, @x, @y) =>
     super ->
       for i=1,10
-        enemy = Enemy x + i * 20, y + 20 * math.sin(i) / 2
+        enemy = Enemy @x + i * 20, @y + 20 * math.sin(i) / 2
         if i == 10
           enemy.is_powered = true
 
         @world.entities\add enemy
         wait 0.05
 
-{ :Enemy, :Spawner }
+{ :Enemy, :Spawner, :ChainSpawner }

@@ -10,7 +10,7 @@ graphics_err_msg = table.concat {
 import StarField from require "background"
 import Player, Powerup from require "player"
 import Hud from require "hud"
-import Spawner from require "enemies"
+import Spawner, ChainSpawner from require "enemies"
 import GlowShader from require "shaders"
 import ScrollingMap from require "maps"
 
@@ -209,6 +209,8 @@ class World
     @particles = DrawList!
     @bullets = DrawList!
 
+    @spawners = DrawList!
+
     @player = Player 50, @stage_height/3
     @collider = UniformGrid!
     @seqs = DrawList!
@@ -217,12 +219,13 @@ class World
     @entities\add @edge_left
     @entities\add @edge_right
 
-    @seqs\add Spawner @, 150, @stage_height / 2
-
     @entities\add Powerup 100, 50
 
     @map = ScrollingMap\from_tiled "maps.test", {
       object: (o) ->
+        switch o.name
+          when "chain"
+            @spawners\add ChainSpawner @, o.x, o.y
     }
 
     @map_box = @map\to_box!
@@ -247,6 +250,7 @@ class World
 
     @entities\draw!
     @bullets\draw!
+    @spawners\draw!
 
     blend = g.getBlendMode!
     g.setBlendMode "additive"
@@ -326,6 +330,7 @@ class World
     @entities\update dt, @
     @bullets\update dt, @
     @particles\update dt, @
+    @spawners\update dt, @
 
     @seqs\update dt, @
     @background\update dt, @
