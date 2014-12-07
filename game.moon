@@ -60,7 +60,10 @@ class World
   stage_speed: 0.05
 
   mousepressed: (x, y, button) =>
-    @player\add_option!
+    x,y = @viewport\unproject x,y
+    for button in *@hud.all_buttons
+      if button\touches_pt x - @hud.x, y - @hud.y
+        @player\upgrade button.text
 
   calculate: =>
     @viewport = EffectViewport scale: GAME_CONFIG.scale
