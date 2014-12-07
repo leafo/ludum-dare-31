@@ -165,10 +165,10 @@ class Player extends Entity
     }
 
   bullet_life: =>
-    0.4
+    0.4 + 0.4 * @upgrades.distance * @upgrades.distance
 
   bullet_rate: =>
-    0.5 - @upgrades.shot * 0.1
+    0.3 / math.pow(1.5, @upgrades.shot)
 
   collect_powerup: (powerup) =>
     @world.hud\add_point!
