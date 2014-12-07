@@ -9,6 +9,7 @@ graphics_err_msg = table.concat {
 
 import StarField from require "background"
 import Player from require "player"
+import Hud from require "hud"
 
 class Edge extends Box
   color: {168, 219, 255}
@@ -38,6 +39,7 @@ class Enemy extends Entity
     thing.alive = false
     print "enemy taking hit"
 
+
 class World
   top: 0
   bottom: 200
@@ -60,7 +62,7 @@ class World
     x2 -= @stage_height
     y2 -= @stage_height
 
-    @hud_box = Box x1, y1, x2 - x1, y2 - y1
+    @hud = Hud x1, y1, x2 - x1, y2 - y1
     @stage_extent = Box 0, 0, (@viewport.w + @viewport.h ) * 2, @stage_height
 
     assert love.graphics.isSupported("npot"), graphics_err_msg
@@ -122,7 +124,6 @@ class World
 
     @left_left_mesh = @create_corner_mesh divs, true, left_left\unpack2!
     @left_right_mesh = @create_corner_mesh divs, false, left_right\unpack2!
-
 
   draw_corner_mesh: (mesh, x, y) =>
     g.push!
@@ -216,6 +217,7 @@ class World
     g.draw @stage_canvas, @slice_quad, 0, 0
 
   draw: =>
+    -- g.setWireframe true
     g.setCanvas @stage_canvas
     @draw_stage!
     g.setCanvas!
@@ -225,7 +227,7 @@ class World
     g.setCanvas!
 
     @viewport\apply!
-    @hud_box\draw {0,0,0, 100}
+    @hud\draw!
     canvas = @stage_buffer
 
     -- top
@@ -271,6 +273,7 @@ class World
     @bullets\update dt, @
     @seqs\update dt, @
     @background\update dt, @
+    @hud\update dt
 
     @time += dt * @stage_speed
     @time -= 1 if @time > 1
