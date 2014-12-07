@@ -8,12 +8,17 @@ class BulletHitParticle extends ImageParticle
   lazy sprite: => Spriter "images/sprites.png", 16, 16
 
 class BulletHitEmitter extends Emitter
+  new: (@dir=Vec2d(0, -1), ...) =>
+    super ...
+
   make_particle: =>
     with BulletHitParticle @x, @y
-      .vel = Vec2d(0, -100)\random_heading(80)
+      .vel = (@dir * 100)\random_heading(80)
       .accel = Vec2d(0, 300)
 
 class Bullet extends Entity
+  is_bullet: true
+
   w: 5
   h: 5
   speed: 200
@@ -29,14 +34,17 @@ class Bullet extends Entity
 
   color: { 0, 255, 100 }
 
+  take_hit: (thing, world) =>
+    dir = (Vec2d(@center!) - Vec2d(thing\center!))\normalized!
+
+
+    world.particles\add BulletHitEmitter dir, world, @center!
+
   update: (dt, world) =>
     super dt, world
     world.stage_extent\touches_box @
     @life -= dt
     alive = @life > 0
-
-    unless alive
-      world.particles\add BulletHitEmitter world, @center!
 
     alive
 
@@ -73,7 +81,7 @@ class Player extends Entity
     @seqs = DrawList!
 
   bullet_life: =>
-    0.2
+    0.4
 
   update: (dt, @world) =>
     dir = CONTROLLER\movement_vector!

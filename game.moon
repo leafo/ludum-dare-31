@@ -210,7 +210,8 @@ class World
     @entities\add @edge_left
     @entities\add @edge_right
 
-    @entities\add Enemy 150, @stage_height/3
+    for i=1,10
+      @entities\add Enemy 150 + i * 20, @stage_height/3 + 20 * math.sin(i) / 2
 
   draw_stage: =>
     @stage_canvas\clear 10, 13, 20
