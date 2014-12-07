@@ -1,7 +1,8 @@
 {graphics: g} = love
 
 class ScrollingMap extends TileMap
-  speed: 100
+  target_speed: 10
+  speed: 0
   scroll_offset: 0
 
   draw: (box) =>
@@ -26,6 +27,7 @@ class ScrollingMap extends TileMap
 
   update: (dt, @world) =>
     super dt
+    @speed = smooth_approach @speed, @target_speed, dt
     @scroll_offset += dt * @speed
 
 { :ScrollingMap }
