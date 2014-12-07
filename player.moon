@@ -136,30 +136,34 @@ class Option extends Entity
 class Player extends Entity
   color: {255, 255, 255}
   is_player: true
-  speed: 100
+  speed: 60
+
+  w: 10
+  h: 5
 
   max_upgrades: {
     speed: 3
     distance: 3
+    shot: 3
     option: 4
     shield: 1
+    boom: 1
   }
 
-  upgrades: {
-    speed: 0
-    distance: 0
-    option: 0
-    shield: 0
-    boom: 0
-  }
-
-  w: 10
-  h: 5
 
   new: (...) =>
     super ...
     @seqs = DrawList!
     @options = DrawList!
+
+    @upgrades = {
+      speed: 0
+      distance: 0
+      shot: 0
+      option: 0
+      shield: 0
+      boom: 0
+    }
 
   bullet_life: =>
     0.4
@@ -175,7 +179,7 @@ class Player extends Entity
 
   update: (dt, @world) =>
     dir = CONTROLLER\movement_vector!
-    move = dir * (dt * @speed)
+    move = dir * (dt * (@speed + @upgrades.speed * 25))
     dx, dy = unpack move
 
     @fit_move dx, dy, @world
@@ -213,6 +217,13 @@ class Player extends Entity
       super {255,0,0,100}
 
   upgrade: (what) =>
-    print "upgrading #{what}"
+    error "BOOM" if what == "boom"
+
+    if @upgrades[what] + 1 > @max_upgrades[what]
+      return false
+
+    @upgrades[what] += 1
+    true
+
 
 { :Player, :Poweup }

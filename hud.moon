@@ -87,9 +87,10 @@ class Hud extends Box
 
     if @points > 0 and CONTROLLER\tapped "upgrade"
       upgrade = @upgrades[@points]
-      @world.player\upgrade upgrade
-      @points = 0
-
+      if @world.player\upgrade upgrade
+        @points = 0
+      else
+        print "audio BUZZ"
 
     for i, b in ipairs @all_buttons
       b.state = if i == @points
