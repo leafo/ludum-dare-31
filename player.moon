@@ -35,7 +35,7 @@ class Bullet extends Entity
   color: { 0, 255, 100 }
 
   take_hit: (thing, world) =>
-    dir = (Vec2d(@center!) - Vec2d(thing\center!))\normalized!
+    dir = (Vec2d(@center!) - Vec2d(thing\center!)\normalized!
 
 
     world.particles\add BulletHitEmitter dir, world, @center!

@@ -24,7 +24,7 @@ love.load = ->
   g.setBackgroundColor 234, 240, 245
   g.setBackgroundColor 10, 10, 10
 
-  export CONTROLLER = Controller GAME_CONFIG.keys
+  export CONTROLLER = Controller GAME_CONFIG.keys, "auto"
   export DISPATCHER = Dispatcher World!
   DISPATCHER\bind love
 
