@@ -317,6 +317,12 @@ class World
         if thing.take_hit
           thing\take_hit b, @
 
+    -- see if player hitting anything
+    if @player.alive
+      for thing in *@collider\get_touching @player
+        if thing.take_hit
+          thing\take_hit @player, @
+
     @viewport\update dt
 
   collides: (thing) =>

@@ -1,6 +1,7 @@
 {graphics: g} = love
 
 class Poweup extends Entity
+  mixin HasEffects
   lazy sprite: => Spriter "images/sprites.png", 16, 16
   w: 13
   h: 13
@@ -11,10 +12,17 @@ class Poweup extends Entity
     @anim = @sprite\seq {3,5}, 0.2
     @vel = Vec2d(-@speed, 0)
 
-  update: (dt, world) =>
+  take_hit: (thing) =>
+    return if @dying
+    if thing == @world.player
+      @dying = true
+      @world.player\collect_powerup powerup
+      @effects\add BlowOutEffect 0.2, -> @alive = false
+
+  update: (dt, @world) =>
     @move unpack dt * @vel
     @anim\update dt
-    @x > -@w
+    @alive and @x > -@w
 
   draw: =>
     oy = 2 * math.sin(5 * love.timer.getTime!)
@@ -155,6 +163,8 @@ class Player extends Entity
 
   bullet_life: =>
     0.4
+
+  collect_powerup: (powerup) =>
 
   add_option: =>
     i = #@options + 1
