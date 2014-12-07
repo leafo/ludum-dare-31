@@ -18,10 +18,27 @@ class Bullet extends Entity
   draw: =>
     super @color
 
+class Option extends Entity
+
 class Player extends Entity
   color: {255, 255, 255}
   is_player: true
   speed: 100
+
+  max_upgrades: {
+    speed: 3
+    distance: 3
+    option: 4
+    shield: 1
+  }
+
+  upgrades: {
+    speed: 0
+    distance: 0
+    option: 0
+    shield: 0
+    boom: 0
+  }
 
   w: 10
   h: 5

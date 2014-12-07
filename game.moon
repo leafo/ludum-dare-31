@@ -11,13 +11,41 @@ import StarField from require "background"
 import Player from require "player"
 import Hud from require "hud"
 
+import random, randomNormal from love.math
+
+class EdgeParticle extends ImageParticle
+  w: 16
+  h: 16
+
+  lazy sprite: => Spriter "images/sprites.png", 16, 16
+  life: 0.5
+  quad: 0
+
 class Edge extends Box
+  direction: Vec2d 1,0
   color: {168, 219, 255}
+  speed: 50
+
+  new: (...) =>
+    super ...
+    @seq = Sequence ->
+      for i=1,2
+        yoffset = random 0, @h
+        @world.particles\add with EdgeParticle @x, @y + yoffset, @direction * @speed
+          .vel = .vel + Vec2d randomNormal! * 10, 0
+          .a = random(70,100) / 100
+          .spin = random!
+          .dspin = randomNormal! * 2
+          .scale = 1 + randomNormal! / 2
+
+      wait random! * 0.1 + 0.05
+      again!
 
   draw: =>
     super @color
 
-  update: (dt) =>
+  update: (dt, @world) =>
+    @seq\update dt
     true
 
 class Enemy extends Entity
@@ -91,7 +119,9 @@ class World
     @stage_buffer\setFilter "nearest", "nearest"
 
     @edge_left = Edge 0, 0, 5, @stage_height
-    @edge_right = Edge @stage_extent.w - 5, 0, 5, @stage_height
+
+    @edge_right = with Edge @stage_extent.w - 5, 0, 5, @stage_height
+      .direction = Vec2d -1, 0
 
     -- create mesh
 
@@ -188,6 +218,7 @@ class World
     @background = StarField @
 
     @entities = DrawList!
+    @particles = DrawList!
     @bullets = DrawList!
 
     @player = Player 50, @stage_height/3
@@ -204,6 +235,11 @@ class World
     @background\draw!
     @entities\draw!
     @bullets\draw!
+
+    blend = g.getBlendMode!
+    g.setBlendMode "additive"
+    @particles\draw!
+    g.setBlendMode blend
 
   draw_stage_buffer: =>
     @stage_buffer\clear 255, 0,0
@@ -271,6 +307,8 @@ class World
   update: (dt) =>
     @entities\update dt, @
     @bullets\update dt, @
+    @particles\update dt, @
+
     @seqs\update dt, @
     @background\update dt, @
     @hud\update dt
