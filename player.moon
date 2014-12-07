@@ -165,6 +165,7 @@ class Player extends Entity
     0.4
 
   collect_powerup: (powerup) =>
+    @world.hud\add_point!
 
   add_option: =>
     i = #@options + 1

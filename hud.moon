@@ -23,7 +23,12 @@ class Button extends Box
       g.rectangle "fill", @unpack!
       g.pop!
 
-    COLOR\push 40,40,40
+    shade = 40
+    if @state == "active"
+      time = love.timer.getTime!
+      shade += 10 + 10 * math.sin(time * 8)
+
+    COLOR\push shade, shade, shade
     g.rectangle "fill", @unpack!
     COLOR\pop!
 
@@ -46,6 +51,8 @@ class Button extends Box
 class Hud extends Box
   max_points: 6
   points: 0
+  score: 0
+  display_score: 0
 
   new: (...) =>
     super ...
@@ -67,12 +74,21 @@ class Hud extends Box
     }
 
     @bin = Bin 0,0, @w,@h, buttons, 0.5, 0.5
+    @score_label = Bin 0, 0, @w, @h,
+      Label(-> "score: #{math.floor @display_score}"),
+      1, 1
+
+  add_score: (pts) =>
+    @score += pts
+
+  add_point: =>
+    @points += 1
+    @points = math.min @max_points, @points
 
   update: (dt) =>
     @bin\update dt
-
-    time = love.timer.getTime! * 5
-    @points = math.floor(time) % (@max_points + 1)
+    @score_label\update dt
+    @display_score = smooth_approach @display_score, @score, dt * 10
 
     for i, b in ipairs @all_buttons
       b.state = if i == @points
@@ -84,6 +100,7 @@ class Hud extends Box
     g.push!
     g.translate @x, @y
     @bin\draw!
+    @score_label\draw!
     g.pop!
 
 { :Hud }

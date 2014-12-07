@@ -24,6 +24,7 @@ class Enemy extends Entity
   is_enemy: true
   core_color: { 255, 100, 100 }
   is_powered: false
+  score: 37
 
   radius: 7
   inner_radius: 3
@@ -82,6 +83,7 @@ class Enemy extends Entity
       super {255,0,0, 100}
 
   die: =>
+    @world.hud\add_score @score
     @dying = true
     @world.particles\add ExplosionEmitter @world, @center!
     @effects\add BlowOutEffect 0.2, -> @alive = false
