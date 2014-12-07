@@ -11,6 +11,7 @@ import StarField from require "background"
 import Player, Powerup from require "player"
 import Hud from require "hud"
 import Spawner from require "enemies"
+import GlowShader from require "shaders"
 
 import random, randomNormal from love.math
 
@@ -226,6 +227,7 @@ class World
     }
 
     @map_box = @map\to_box!
+    @shader = GlowShader @stage_extent
 
   end_anim: (callback) =>
     @seqs\add Sequence ->
@@ -269,6 +271,8 @@ class World
     g.setCanvas @stage_canvas
     @draw_stage!
     g.setCanvas!
+
+    @shader\render @stage_canvas
 
     g.setCanvas @stage_buffer
     @draw_stage_buffer!
