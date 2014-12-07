@@ -83,6 +83,10 @@ class Hud extends Box
       Label(-> "score: #{math.floor @display_score}"),
       1, 1
 
+    @upgrade_label = Bin @padding, @padding, @w - @padding*2, @h - @padding*2,
+      Label(-> "press 'c' upgrade '#{@upgrades[@points]}'"),
+      0, 1
+
   add_score: (pts) =>
     @score += pts
 
@@ -98,6 +102,7 @@ class Hud extends Box
   update: (dt) =>
     @bin\update dt
     @score_label\update dt
+    @upgrade_label\update dt
     @display_score = smooth_approach @display_score, @score, dt * 10
 
     if @points > 0 and CONTROLLER\tapped "upgrade"
@@ -118,6 +123,13 @@ class Hud extends Box
     g.translate @x, @y
     @bin\draw!
     @score_label\draw!
+
+    if @points > 0 and duty_on!
+      COLOR\pusha 180
+      @upgrade_label\draw!
+      COLOR\pop!
+
+
     g.pop!
 
 { :Hud }
