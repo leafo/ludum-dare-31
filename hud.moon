@@ -49,23 +49,18 @@ class Button extends Box
       COLOR\pop!
 
 class Hud extends Box
+  padding: 6
   max_points: 6
   points: 0
   score: 0
   display_score: 0
 
-  new: (...) =>
+  upgrades: {"speed", "distance", "shot", "option", "shield", "boom"}
+
+  new: (@world, ...) =>
     super ...
 
-    @all_buttons = {
-      Button "speed"
-      Button "distance"
-      Button "double"
-
-      Button "option"
-      Button "shield"
-      Button "boom"
-    }
+    @all_buttons = [Button label for label in *@upgrades]
 
     buttons = VList {
       HList [b for b in *@all_buttons[1,2]]
@@ -74,7 +69,7 @@ class Hud extends Box
     }
 
     @bin = Bin 0,0, @w,@h, buttons, 0.5, 0.5
-    @score_label = Bin 0, 0, @w, @h,
+    @score_label = Bin @padding, @padding, @w - @padding*2, @h - @padding*2,
       Label(-> "score: #{math.floor @display_score}"),
       1, 1
 
@@ -89,6 +84,12 @@ class Hud extends Box
     @bin\update dt
     @score_label\update dt
     @display_score = smooth_approach @display_score, @score, dt * 10
+
+    if @points > 0 and CONTROLLER\tapped "upgrade"
+      upgrade = @upgrades[@points]
+      @world.player\upgrade upgrade
+      @points = 0
+
 
     for i, b in ipairs @all_buttons
       b.state = if i == @points

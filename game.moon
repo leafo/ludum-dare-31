@@ -71,7 +71,7 @@ class World
     x2 -= @stage_height
     y2 -= @stage_height
 
-    @hud = Hud x1, y1, x2 - x1, y2 - y1
+    @hud = Hud @, x1, y1, x2 - x1, y2 - y1
     @stage_extent = Box 0, 0, (@viewport.w + @viewport.h ) * 2, @stage_height
 
     assert love.graphics.isSupported("npot"), graphics_err_msg
@@ -329,7 +329,7 @@ class World
     not thing\touches_box @stage_extent
 
   on_key: (key) =>
-    if key == " "
+    if key == "p"
       PAUSED = not PAUSED
 
 { :World }

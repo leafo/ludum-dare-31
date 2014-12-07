@@ -212,4 +212,7 @@ class Player extends Entity
     if DEBUG
       super {255,0,0,100}
 
+  upgrade: (what) =>
+    print "upgrading #{what}"
+
 { :Player, :Poweup }
