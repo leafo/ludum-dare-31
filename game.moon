@@ -219,7 +219,8 @@ class World
     @entities\add @edge_left
     @entities\add @edge_right
 
-    @entities\add Powerup 100, 50
+    import Shooter from require "enemies"
+    @entities\add Shooter 130, 30
 
     @map = ScrollingMap\from_tiled "maps.test", {
       object: (o) ->

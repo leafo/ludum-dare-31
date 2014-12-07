@@ -49,6 +49,10 @@ class Enemy extends Entity
     @alive
 
   draw: =>
+    -- hack for effects mixin
+    @draw_inner!
+
+  draw_inner: =>
     error "replace me"
 
   die: =>
@@ -66,9 +70,14 @@ class Enemy extends Entity
     if thing.is_bullet
       thing.take_hit and thing\take_hit @, world
 
+  draw_hitbox: =>
+    return unless DEBUG
+    COLOR\push 255,0,0, 100
+    g.rectangle "fill", @unpack!
+    COLOR\pop!
 
 class Drone extends Enemy
-  draw: =>
+  draw_inner: =>
     t = love.timer.getTime!
     if @is_powered
       t = t * 2
@@ -99,10 +108,36 @@ class Drone extends Enemy
     g.circle "line", 0, 0, @radius, 6
     g.pop!
 
-    if DEBUG
-      COLOR\push 255,0,0, 100
-      g.rectangle "fill", @unpack!
-      COLOR\pop!
+    @draw_hitbox!
+
+
+class Shooter extends Enemy
+  update: (...) =>
+    @vel = Vec2d 0,0
+    super ...
+
+  draw_inner: =>
+    bar_l = 15
+    bar_w = 5
+
+    ox = bar_l/2
+    oy = (bar_w + 2)
+
+    g.push!
+    cx, cy = @center!
+    cx -= 0.5
+    cy -= 0.5
+    g.translate cx, cy
+
+    g.rotate love.timer.getTime!
+    g.translate -ox, -oy
+
+    g.rectangle "line", 0, 0, bar_l, bar_w
+    g.rectangle "line", 0, bar_w + 3, bar_l, bar_w
+
+    g.pop!
+
+    @draw_hitbox!
 
 class Spawner extends Sequence
   enemy_types: {
@@ -165,6 +200,11 @@ class SingleSpawner extends Spawner
       wait 0.1 -- lame hack
 
   add_enemy: =>
+    enemy_cls = Drone
     @world.entities\add enemy_cls @x, @y
 
-{ :Enemy, :Spawner, :ChainSpawner, :SingleSpawner }
+{
+  :Enemy,
+  :Drone, :Shooter
+  :Spawner, :ChainSpawner, :SingleSpawner
+}
