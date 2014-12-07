@@ -123,7 +123,7 @@ class Option extends Entity
     @world.bullets\add Bullet @ship\bullet_life!, x,y
 
     @shoot_timer = @seqs\add Sequence ->
-      wait 0.3
+      wait @ship\bullet_rate!
       @shoot_timer = nil
 
   draw: =>
@@ -150,7 +150,6 @@ class Player extends Entity
     boom: 1
   }
 
-
   new: (...) =>
     super ...
     @seqs = DrawList!
@@ -167,6 +166,9 @@ class Player extends Entity
 
   bullet_life: =>
     0.4
+
+  bullet_rate: =>
+    0.5 - @upgrades.shot * 0.1
 
   collect_powerup: (powerup) =>
     @world.hud\add_point!
@@ -202,7 +204,7 @@ class Player extends Entity
     @world.bullets\add Bullet @bullet_life!, x,y
 
     @shoot_timer = @seqs\add Sequence ->
-      wait 0.3
+      wait @bullet_rate!
       @shoot_timer = nil
 
   draw: =>
@@ -223,6 +225,11 @@ class Player extends Entity
       return false
 
     @upgrades[what] += 1
+    switch what
+      when "option"
+        @add_option!
+
+    require("moon").p @upgrades
     true
 
 
