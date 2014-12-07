@@ -22,8 +22,9 @@ class Enemy extends Entity
   mixin HasEffects
 
   is_enemy: true
-  core_color: { 255, 100, 100 }
+  core_color: { 255, 50, 50 }
   is_powered: false
+
   score: 37
 
   radius: 7
@@ -33,6 +34,8 @@ class Enemy extends Entity
 
   w: 10
   h: 10
+
+  time: 0
 
   new: (...) =>
     super ...
@@ -45,6 +48,8 @@ class Enemy extends Entity
 
   update: (dt, @world) =>
     @move unpack @vel * dt
+    @time += dt * (@is_powered and 2 or 1)
+
     @alive = false if @x < -100
     @alive
 
@@ -76,20 +81,15 @@ class Enemy extends Entity
     g.rectangle "fill", @unpack!
     COLOR\pop!
 
-class Drone extends Enemy
-  draw_inner: =>
-    t = love.timer.getTime!
-    if @is_powered
-      t = t * 2
-
+  draw_core: =>
     cx, cy = @center!
 
     if @is_powered
       g.push!
       g.translate cx, cy
-      scale = 1.5 + math.sin(t * 2) / 2
+      scale = 1.5 + math.sin(@time * 2) / 2
       g.scale scale, scale
-      g.rotate -t
+      g.rotate -@time
       g.translate -cx, -cy
 
     COLOR\push @core_color
@@ -100,11 +100,14 @@ class Drone extends Enemy
     if @is_powered
       g.pop!
 
-    x, y = @center!
+class Drone extends Enemy
+  draw_inner: =>
+    @draw_core!
 
+    x, y = @center!
     g.push!
     g.translate x,y
-    g.rotate t
+    g.rotate @time
     g.circle "line", 0, 0, @radius, 6
     g.pop!
 
@@ -112,13 +115,11 @@ class Drone extends Enemy
 
 
 class Shooter extends Enemy
-  update: (...) =>
-    @vel = Vec2d 0,0
-    super ...
-
   draw_inner: =>
     bar_l = 15
     bar_w = 5
+
+    @draw_core!
 
     ox = bar_l/2
     oy = (bar_w + 2)
@@ -129,11 +130,41 @@ class Shooter extends Enemy
     cy -= 0.5
     g.translate cx, cy
 
-    g.rotate love.timer.getTime!
+    g.rotate @time
     g.translate -ox, -oy
 
     g.rectangle "line", 0, 0, bar_l, bar_w
     g.rectangle "line", 0, bar_w + 3, bar_l, bar_w
+
+    g.pop!
+
+    @draw_hitbox!
+
+class Charger extends Enemy
+  aggression: 1
+  time: 0
+
+  radius: 4
+
+  update: (dt, ...) =>
+    @vel = Vec2d 0,0
+    @time += dt * @aggression * math.pi / 2
+    super dt, ...
+
+  draw_inner: =>
+    @draw_core!
+
+    g.push!
+    cx, cy = @center!
+    cx -= 0.5
+    cy -= 0.5
+    g.translate cx, cy
+    g.rotate @time
+
+    pos = Vec2d(0, -1) * (@radius * 1.5)
+    for i=1,3
+      g.circle "line", pos[1], pos[2], @radius, 5
+      pos = pos\rotate math.pi*2/3
 
     g.pop!
 
@@ -205,6 +236,6 @@ class SingleSpawner extends Spawner
 
 {
   :Enemy,
-  :Drone, :Shooter
+  :Drone, :Shooter, :Charger
   :Spawner, :ChainSpawner, :SingleSpawner
 }
