@@ -13,5 +13,6 @@
  </layer>
  <objectgroup name="Enemies">
   <object name="chain" x="293" y="21.5"/>
+  <object name="single" x="357.5" y="60.5"/>
  </objectgroup>
 </map>

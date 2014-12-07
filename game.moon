@@ -10,7 +10,7 @@ graphics_err_msg = table.concat {
 import StarField from require "background"
 import Player, Powerup from require "player"
 import Hud from require "hud"
-import Spawner, ChainSpawner from require "enemies"
+import ChainSpawner, SingleSpawner from require "enemies"
 import GlowShader from require "shaders"
 import ScrollingMap from require "maps"
 
@@ -223,9 +223,13 @@ class World
 
     @map = ScrollingMap\from_tiled "maps.test", {
       object: (o) ->
-        switch o.name
-          when "chain"
-            @spawners\add ChainSpawner @, o.x, o.y
+        spawner_types = {
+          single: SingleSpawner
+          chain: ChainSpawner
+        }
+
+        if spawner = spawner_types[o.name]
+          @spawners\add spawner @, o.x, o.y, o
     }
 
     @map_box = @map\to_box!

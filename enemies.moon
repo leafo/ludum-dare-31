@@ -98,13 +98,15 @@ class Enemy extends Entity
       thing.take_hit and thing\take_hit @, world
 
 class Spawner extends Sequence
+  enemy_types: {
+  }
+
   active: false
 
   new: (...) =>
     super ...
     @range = Box 0,0, 200, 80
-    @range\move_center @x, @y
-    @range.x -= 50
+    @range.x = @x - @range.w
 
   draw: =>
     if DEBUG
@@ -127,15 +129,31 @@ class Spawner extends Sequence
 
 class ChainSpawner extends Spawner
   count: 5
+  spacing: 23
 
   new: (@world, @x, @y) =>
     super ->
-      for i=1,10
-        enemy = Enemy @x + i * 20, @y + 20 * math.sin(i) / 2
-        if i == 10
+      time_offset = love.math.random! * math.pi * 2
+      for i=0,@count - 1
+        ox = Enemy.w / 2
+        oy = Enemy.h / 2
+
+        enemy = Enemy @x + i * @spacing - ox,
+          @y + @spacing * math.sin(i * math.pi / 5 + time_offset) / 2 - oy
+
+        if i == @count
           enemy.is_powered = true
 
         @world.entities\add enemy
-        wait 0.05
+        wait 0.1
 
-{ :Enemy, :Spawner, :ChainSpawner }
+class SingleSpawner extends Spawner
+  new: (@world, @x, @y, @obj) =>
+    super ->
+      @add_enemy!
+      wait 0.1 -- lame hack
+
+  add_enemy: =>
+    @world.entities\add Enemy @x, @y
+
+{ :Enemy, :Spawner, :ChainSpawner, :SingleSpawner }

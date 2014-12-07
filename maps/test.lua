@@ -71,6 +71,18 @@ return {
           rotation = 0,
           visible = true,
           properties = {}
+        },
+        {
+          name = "single",
+          type = "",
+          shape = "rectangle",
+          x = 357.5,
+          y = 60.5,
+          width = 0,
+          height = 0,
+          rotation = 0,
+          visible = true,
+          properties = {}
         }
       }
     }
