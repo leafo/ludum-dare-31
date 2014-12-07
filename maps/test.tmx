@@ -1,20 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="50" height="10" tilewidth="8" tileheight="8">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="200" height="10" tilewidth="8" tileheight="8">
  <tileset firstgid="1" name="tiles" tilewidth="8" tileheight="8">
   <image source="../images/tiles.png" width="128" height="128"/>
  </tileset>
- <layer name="Tile Layer 1" width="50" height="10">
-  <data encoding="base64" compression="zlib">
-   eJxjYMANGIcIpjWglz20BsPFH6NgFJAKhkvap7Y/Bqpcpba91Ko7Brouo9QfAJXbAH0=
-  </data>
- </layer>
- <layer name="Solid" width="50" height="10">
+ <layer name="Tile Layer 1" width="200" height="10">
   <properties>
-   <property name="hidden" value="true"/>
    <property name="solid" value="true"/>
   </properties>
   <data encoding="base64" compression="zlib">
-   eJxjYMANBIcIpjWglz20BsPFH6NgFJAKhkvap7Y/Bqpcpba91Ko7Brouo9QfAHcSCD0=
+   eJzt2csJACAMRMHYf9Me7EDy3zeQs6JLkGiGH4eSKNRQOv/sPJLv+ZTur6JXK50vduDtAgB66PnwMjVLzHWQwTtDGTndNgvtuCc83hmKzuu2/4Pq9dVE5ofqXRfblQF2
   </data>
  </layer>
 </map>

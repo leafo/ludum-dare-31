@@ -12,6 +12,7 @@ import Player, Powerup from require "player"
 import Hud from require "hud"
 import Spawner from require "enemies"
 import GlowShader from require "shaders"
+import ScrollingMap from require "maps"
 
 import random, randomNormal from love.math
 
@@ -51,8 +52,6 @@ class Edge extends Box
   update: (dt, @world) =>
     @seq\update dt
     true
-
-class ScrollingMap extends TileMap
 
 class World
   top: 0
@@ -244,7 +243,7 @@ class World
     @stage_canvas\clear 10, 13, 20
 
     @background\draw!
-    @map\draw!
+    @map\draw @stage_extent
 
     @entities\draw!
     @bullets\draw!
@@ -323,6 +322,7 @@ class World
   update: (dt) =>
     return if PAUSED
 
+    @map\update dt, @
     @entities\update dt, @
     @bullets\update dt, @
     @particles\update dt, @
