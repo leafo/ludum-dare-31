@@ -8,7 +8,7 @@ graphics_err_msg = table.concat {
 {graphics: g} = love
 
 import StarField from require "background"
-import Player, Poweup from require "player"
+import Player, Powerup from require "player"
 import Hud from require "hud"
 import Spawner from require "enemies"
 
@@ -215,7 +215,7 @@ class World
 
     @seqs\add Spawner @, 150, @stage_height / 2
 
-    @entities\add Poweup 100, 50
+    @entities\add Powerup 100, 50
 
   draw_stage: =>
     @stage_canvas\clear 10, 13, 20

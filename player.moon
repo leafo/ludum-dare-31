@@ -1,6 +1,6 @@
 {graphics: g} = love
 
-class Poweup extends Entity
+class Powerup extends Entity
   mixin HasEffects
   lazy sprite: => Spriter "images/sprites.png", 16, 16
   w: 13
@@ -236,4 +236,4 @@ class Player extends Entity
     true
 
 
-{ :Player, :Poweup }
+{ :Player, :Powerup }
