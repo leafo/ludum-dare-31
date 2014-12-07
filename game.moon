@@ -8,9 +8,9 @@ graphics_err_msg = table.concat {
 {graphics: g} = love
 
 import StarField from require "background"
-import Player from require "player"
+import Player, Poweup from require "player"
 import Hud from require "hud"
-import Enemy from require "enemies"
+import Spawner from require "enemies"
 
 import random, randomNormal from love.math
 
@@ -210,8 +210,7 @@ class World
     @entities\add @edge_left
     @entities\add @edge_right
 
-    for i=1,10
-      @entities\add Enemy 150 + i * 20, @stage_height/3 + 20 * math.sin(i) / 2
+    @seqs\add Spawner @, 150, @stage_height / 2
 
   draw_stage: =>
     @stage_canvas\clear 10, 13, 20

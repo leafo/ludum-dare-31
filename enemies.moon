@@ -19,12 +19,16 @@ class ExplosionEmitter extends Emitter
       .accel = Vec2d(0, 200 * randomNormal!)
 
 class Enemy extends Entity
+  mixin HasEffects
+
   is_enemy: true
   core_color: { 255, 100, 100 }
-  is_powered: true
+  is_powered: false
 
   radius: 7
   inner_radius: 3
+
+  speed: 10
 
   w: 10
   h: 10
@@ -32,8 +36,15 @@ class Enemy extends Entity
   new: (...) =>
     super ...
     @alive = true
+    @vel = Vec2d -@speed, 0
+    @effects = EffectList!
 
-  update: (dt) =>
+    @effects\add PopinEffect 0.2
+    @effects\add FadeInEffect 0.2
+
+  update: (dt, @world) =>
+    @move unpack @vel * dt
+    @alive = false if @x < -100
     @alive
 
   draw: =>
@@ -46,12 +57,11 @@ class Enemy extends Entity
     if @is_powered
       g.push!
       g.translate cx, cy
-      scale = 1 + math.sin(t * 2) / 3
+      scale = 1.5 + math.sin(t * 2) / 2
       g.scale scale, scale
       g.rotate -t
       g.translate -cx, -cy
 
-    -- super @core_color
     COLOR\push @core_color
     g.rectangle "fill", cx - @inner_radius / 2, cy - @inner_radius / 2,
       @inner_radius, @inner_radius
@@ -71,14 +81,28 @@ class Enemy extends Entity
     if DEBUG
       super {255,0,0, 100}
 
+  die: =>
+    @dying = true
+    @world.particles\add ExplosionEmitter @world, @center!
+    @effects\add BlowOutEffect 0.2, -> @alive = false
+
   take_hit: (thing, world) =>
-    @alive = false
+    return if @dying
+    @die!
     if thing.is_bullet
       thing.take_hit and thing\take_hit @, world
 
+class Spawner extends Sequence
+  count: 10
 
-    thing.alive = false
-    world.particles\add ExplosionEmitter world, @center!
-    print "enemy taking hit"
+  new: (@world, x, y) =>
+    super ->
+      for i=1,10
+        enemy = Enemy x + i * 20, y + 20 * math.sin(i) / 2
+        if i == 10
+          enemy.is_powered = true
 
-{ :Enemy }
+        @world.entities\add enemy
+        wait 0.05
+
+{ :Enemy, :Spawner }
