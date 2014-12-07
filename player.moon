@@ -14,7 +14,7 @@ class BulletHitEmitter extends Emitter
   make_particle: =>
     with BulletHitParticle @x, @y
       .vel = (@dir * 100)\random_heading(80)
-      .accel = Vec2d(0, 300)
+      .accel = -1.1 * .vel
 
 class Bullet extends Entity
   is_bullet: true
@@ -35,9 +35,7 @@ class Bullet extends Entity
   color: { 0, 255, 100 }
 
   take_hit: (thing, world) =>
-    dir = (Vec2d(@center!) - Vec2d(thing\center!)\normalized!
-
-
+    dir = (Vec2d(@center!) - Vec2d(thing\center!))\normalized!
     world.particles\add BulletHitEmitter dir, world, @center!
 
   update: (dt, world) =>

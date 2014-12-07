@@ -24,8 +24,10 @@ class Enemy extends Entity
   is_powered: true
 
   radius: 7
-  w: 3
-  h: 3
+  inner_radius: 3
+
+  w: 10
+  h: 10
 
   new: (...) =>
     super ...
@@ -39,16 +41,20 @@ class Enemy extends Entity
     if @is_powered
       t = t * 2
 
+    cx, cy = @center!
+
     if @is_powered
       g.push!
-      cx, cy = @center!
       g.translate cx, cy
       scale = 1 + math.sin(t * 2) / 3
       g.scale scale, scale
       g.rotate -t
       g.translate -cx, -cy
 
-    super @core_color
+    -- super @core_color
+    COLOR\push @core_color
+    g.rectangle "fill", cx - @inner_radius / 2, cy - @inner_radius / 2, @inner_radius, @inner_radius
+    COLOR\pop!
 
     if @is_powered
       g.pop!
@@ -60,6 +66,9 @@ class Enemy extends Entity
     g.rotate t
     g.circle "line", 0, 0, @radius, 6
     g.pop!
+
+    if DEBUG
+      super {255,0,0, 100}
 
   take_hit: (thing, world) =>
     @alive = false
