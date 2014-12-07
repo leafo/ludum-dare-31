@@ -232,6 +232,8 @@ class World
           @spawners\add spawner @, o.x, o.y, o
     }
 
+    @map\autotile!
+
     @map_box = @map\to_box!
     @shader = GlowShader @stage_extent
 

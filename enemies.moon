@@ -141,7 +141,7 @@ class ChainSpawner extends Spawner
         enemy = Enemy @x + i * @spacing - ox,
           @y + @spacing * math.sin(i * math.pi / 5 + time_offset) / 2 - oy
 
-        if i == @count
+        if i == @count - 1
           enemy.is_powered = true
 
         @world.entities\add enemy
