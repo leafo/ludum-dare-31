@@ -10,6 +10,7 @@ graphics_err_msg = table.concat {
 import StarField from require "background"
 import Player from require "player"
 import Hud from require "hud"
+import Enemy from require "enemies"
 
 import random, randomNormal from love.math
 
@@ -50,25 +51,6 @@ class Edge extends Box
     @seq\update dt
     true
 
-class Enemy extends Entity
-  is_enemy: true
-  color: { 255, 100, 100 }
-
-  new: (...) =>
-    super ...
-    @alive = true
-
-  update: (dt) =>
-    @alive
-
-  draw: =>
-    super @color
-
-  take_hit: (thing, world) =>
-    @alive = false
-    thing.alive = false
-    print "enemy taking hit"
-
 class World
   top: 0
   bottom: 200
@@ -79,7 +61,6 @@ class World
 
   mousepressed: (x, y, button) =>
     x, y = @viewport\unproject x, y
-    @entities\add Enemy x, y
 
   calculate: =>
     @viewport = EffectViewport scale: GAME_CONFIG.scale
@@ -228,6 +209,8 @@ class World
     @entities\add @player
     @entities\add @edge_left
     @entities\add @edge_right
+
+    @entities\add Enemy 150, @stage_height/3
 
   draw_stage: =>
     @stage_canvas\clear 10, 13, 20
