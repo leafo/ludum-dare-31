@@ -217,10 +217,18 @@ class World
 
     @entities\add Powerup 100, 50
 
+    @map = TileMap\from_tiled "maps.test", {
+      object: (o) ->
+    }
+
+    @map_box = @map\to_box!
+
   draw_stage: =>
     @stage_canvas\clear 10, 13, 20
 
     @background\draw!
+    @map\draw!
+
     @entities\draw!
     @bullets\draw!
 
