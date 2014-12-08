@@ -65,6 +65,7 @@ class Enemy extends Entity
     @dying = true
     @world.particles\add ExplosionEmitter @world, @center!
     @effects\add BlowOutEffect 0.2, -> @alive = false
+    AUDIO\play "enemy_die"
     if @is_powered
       import Powerup from require "player"
       @world.entities\add Powerup @center!

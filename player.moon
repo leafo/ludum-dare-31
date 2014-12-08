@@ -15,6 +15,7 @@ class Powerup extends Entity
   take_hit: (thing) =>
     return if @dying
     if thing == @world.player
+      AUDIO\play "powerup"
       @dying = true
       @world.player\collect_powerup powerup
       @effects\add BlowOutEffect 0.2, -> @alive = false
@@ -121,7 +122,6 @@ class Option extends Entity
     y = @y + @h / 2 - Bullet.h / 2
 
     @world.bullets\add Bullet @ship\bullet_life!, x,y
-    AUDIO\play "shoot"
 
     @shoot_timer = @seqs\add Sequence ->
       wait @ship\bullet_rate!
@@ -190,16 +190,19 @@ class Player extends Entity
       @immune = true
       @shielded = false
       @downgrade "shield"
-      print "audio lose shield"
 
       @seqs\add Sequence ->
-        wait 1.0
+        AUDIO\play "enemy_hit"
+        wait 0.1
+        AUDIO\play "lose_shield"
+        wait 0.9
+
         @immune = false
 
       return
 
     return if @dying
-    print "audio explode"
+    AUDIO\play "player_die"
 
     @dying = true
     @effects\add BlowOutEffect 0.8, ->
@@ -227,6 +230,7 @@ class Player extends Entity
       option\shoot!
 
     return if @shoot_timer
+    AUDIO\play "shoot"
     x = @x + @w / 2 - Bullet.w / 2
     y = @y + @h / 2 - Bullet.h / 2
 
@@ -282,6 +286,8 @@ class Player extends Entity
 
   upgrade: (what) =>
     error "BOOM" if what == "boom"
+
+    AUDIO\play "upgrade"
 
     if @upgrades[what] + 1 > @max_upgrades[what]
       return false
