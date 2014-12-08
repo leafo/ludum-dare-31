@@ -147,8 +147,6 @@ class Charger extends Enemy
   radius: 4
 
   update: (dt, ...) =>
-    @vel = Vec2d 0,0
-    @time += dt * @aggression * math.pi / 2
     super dt, ...
 
   draw_inner: =>
@@ -169,6 +167,47 @@ class Charger extends Enemy
     g.pop!
 
     @draw_hitbox!
+
+class Boss extends Enemy
+  is_powered: true
+  open: 0 -- from 0 to 1, opens mouth for when shooting
+
+  update: (dt, ...) =>
+    @vel = Vec2d 0,0
+    super dt, ...
+
+  draw_inner: =>
+    @draw_core!
+
+    @draw_hitbox!
+
+    g.push!
+    g.translate @center!
+
+    oy = 5
+    ox = 5
+    len = 30
+    wing = 12
+
+    rot = math.sin(@time) / 10 + @open * 0.6
+
+    -- top
+    g.push!
+    g.rotate rot
+    g.polygon "line", -len + ox, -oy,
+      ox, -oy - wing,
+      ox, -oy
+    g.pop!
+
+    -- bottom
+    g.push!
+    g.rotate -rot
+    g.polygon "line", -len + ox, oy,
+      ox, oy + wing,
+      ox, oy
+
+    g.pop!
+    g.pop!
 
 class Spawner extends Sequence
   enemy_types: {
@@ -236,6 +275,6 @@ class SingleSpawner extends Spawner
 
 {
   :Enemy,
-  :Drone, :Shooter, :Charger
+  :Drone, :Shooter, :Charger, :Boss
   :Spawner, :ChainSpawner, :SingleSpawner
 }

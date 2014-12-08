@@ -219,9 +219,10 @@ class World
     @entities\add @edge_left
     @entities\add @edge_right
 
-    import Shooter, Charger from require "enemies"
-    @entities\add Charger 130, 30
-    @entities\add Shooter 180, 50
+    import Boss from require "enemies"
+    -- @entities\add Charger 130, 30
+    -- @entities\add Shooter 180, 50
+    @entities\add Boss 180, 50
 
     @map = ScrollingMap\from_tiled "maps.test", {
       object: (o) ->
