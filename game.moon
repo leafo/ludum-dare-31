@@ -219,11 +219,6 @@ class World
     @entities\add @edge_left
     @entities\add @edge_right
 
-    import Boss from require "enemies"
-    -- @entities\add Charger 130, 30
-    -- @entities\add Shooter 180, 50
-    @entities\add Boss 180, 50
-
     @map = ScrollingMap\from_tiled "maps.test", {
       object: (o) ->
         spawner_types = {

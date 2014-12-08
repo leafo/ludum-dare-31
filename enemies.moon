@@ -71,8 +71,12 @@ class Enemy extends Entity
 
   take_hit: (thing, world) =>
     return if @dying
-    @die!
+
+    if thing.is_player
+      thing\die!
+
     if thing.is_bullet
+      @die!
       thing.take_hit and thing\take_hit @, world
 
   draw_hitbox: =>
