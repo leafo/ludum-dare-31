@@ -24,6 +24,19 @@ love.load = ->
   g.setBackgroundColor 234, 240, 245
   g.setBackgroundColor 10, 10, 10
 
+  export AUDIO = Audio "sounds"
+  AUDIO\preload {
+    "enemy_die"
+    "enemy_hit"
+    "enemy_shoot"
+    "lose_shield"
+    "player_die"
+    "powerup"
+    "shoot"
+    "start_game"
+    "upgrade"
+  }
+
   export CONTROLLER = Controller GAME_CONFIG.keys, "auto"
   export DISPATCHER = Dispatcher World!
   DISPATCHER\bind love

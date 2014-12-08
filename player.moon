@@ -121,6 +121,7 @@ class Option extends Entity
     y = @y + @h / 2 - Bullet.h / 2
 
     @world.bullets\add Bullet @ship\bullet_life!, x,y
+    AUDIO\play "shoot"
 
     @shoot_timer = @seqs\add Sequence ->
       wait @ship\bullet_rate!
