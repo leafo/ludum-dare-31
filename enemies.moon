@@ -3,6 +3,32 @@
 
 import randomNormal from love.math
 
+class EnemyBullet extends Entity
+  is_enemy_bullet: true
+
+  w: 4
+  h: 4
+  speed: 200
+
+  ox: 6
+  oy: 6
+
+  lazy sprite: => Spriter "images/sprites.png", 16, 16
+
+  new: (@x,@y, dir=Vec2d(-1, 0)) =>
+    @vel = @speed * dir
+
+  on_stuck: =>
+    @alive = false
+
+  draw: =>
+    @sprite\draw 6, @x - @ox, @y - @oy
+    super {0, 100, 255}
+
+  update: (dt, world)=>
+    super dt, world
+    @alive
+
 class ExplosionParticle extends ImageParticle
   life: 0.2
   w: 16
@@ -42,13 +68,20 @@ class Enemy extends Entity
     @alive = true
     @vel = Vec2d -@speed, 0
 
+    @seqs = DrawList!
     @effects = EffectList!
     @effects\add PopinEffect 0.2
     @effects\add FadeInEffect 0.2
 
+    if @ai = @make_ai!
+      @seqs\add @ai
+
+  make_ai: =>
+
   update: (dt, @world) =>
     @move unpack @vel * dt
     @time += dt * (@is_powered and 2 or 1)
+    @seqs\update dt
 
     @alive = false if @x < -100
     @alive
@@ -105,6 +138,30 @@ class Enemy extends Entity
     if @is_powered
       g.pop!
 
+  make_ai: =>
+    Sequence ->
+      wait 2 + randomNormal!
+      @shoot!
+      again!
+
+  -- points to player
+  shoot_dir: =>
+    target = Vec2d @world.player\center!
+    src = Vec2d @center!
+    (target - src)\normalized!
+
+  add_bullet: (...) =>
+    AUDIO\play "enemy_shoot"
+    cx, cy = @center!
+    @world.bullets\add EnemyBullet cx, cy, ...
+
+  shoot: =>
+    @add_bullet @shoot_dir!
+
+  shoot_sweep: =>
+    @shooting = @seqs\add Sequence ->
+
+
 class Drone extends Enemy
   draw_inner: =>
     @draw_core!
@@ -117,7 +174,6 @@ class Drone extends Enemy
     g.pop!
 
     @draw_hitbox!
-
 
 class Shooter extends Enemy
   draw_inner: =>
@@ -279,7 +335,7 @@ class SingleSpawner extends Spawner
     @world.entities\add enemy_cls @x, @y
 
 {
-  :Enemy,
+  :Enemy, :EnemyBullet
   :Drone, :Shooter, :Charger, :Boss
   :Spawner, :ChainSpawner, :SingleSpawner
 }

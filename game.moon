@@ -253,12 +253,14 @@ class World
     @map\draw @stage_extent
 
     @entities\draw!
-    @bullets\draw!
     @spawners\draw!
 
     blend = g.getBlendMode!
     g.setBlendMode "additive"
+
+    @bullets\draw!
     @particles\draw!
+
     g.setBlendMode blend
     g.pop!
 

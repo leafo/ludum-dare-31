@@ -26,6 +26,7 @@ love.load = ->
 
   export AUDIO = Audio "sounds"
   AUDIO\preload {
+    "bullet_hit_wall"
     "enemy_die"
     "enemy_hit"
     "enemy_shoot"

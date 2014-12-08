@@ -79,10 +79,12 @@ class Bullet extends Entity
 
   update: (dt, world) =>
     super dt, world
-    world.stage_extent\touches_box @
+
+    -- kill if hitting map, play tick?
+    -- world.stage_extent\touches_box @
+
     @life -= dt
     alive = @life > 0
-
     alive
 
   draw: =>
