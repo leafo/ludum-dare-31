@@ -21,7 +21,6 @@ love.load = ->
 
   g.setFont fonts.default
 
-  g.setBackgroundColor 234, 240, 245
   g.setBackgroundColor 10, 10, 10
 
   export AUDIO = Audio "sounds"

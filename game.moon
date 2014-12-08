@@ -10,7 +10,7 @@ graphics_err_msg = table.concat {
 import StarField from require "background"
 import Player, Powerup from require "player"
 import Hud from require "hud"
-import GlowShader from require "shaders"
+import GlowShader, LutShader from require "shaders"
 import ScrollingMap from require "maps"
 
 import random, randomNormal from love.math
@@ -250,6 +250,8 @@ class World
     @hi.tex\setFilter "linear", "linear"
 
     @calculate!
+    @screen_canvas = g.newCanvas!
+
     @background = StarField @
 
     @entities = DrawList!
@@ -267,6 +269,8 @@ class World
     @entities\add @edge_right
 
     @shader = GlowShader @stage_extent
+    lut = imgfy "images/lut-ratro.png"
+    @lut = LutShader lut.tex
 
     @seqs\add @stage_sequence!
 
@@ -338,10 +342,21 @@ class World
     @draw_stage_buffer!
     g.setCanvas!
 
+    g.setCanvas @screen_canvas
+    @screen_canvas\clear 10, 10, 10
     @viewport\apply!
     @hud\draw!
     canvas = @stage_buffer
+    @draw_final_stage!
+    @viewport\pop!
+    g.setCanvas!
 
+    @lut\render ->
+      g.draw @screen_canvas
+
+
+  draw_final_stage: =>
+    canvas = @stage_buffer
     -- top
     g.draw canvas, @top_quad, @stage_height, 0
     @draw_corner_mesh @top_left_mesh, 0,0
@@ -378,7 +393,6 @@ class World
 
     g.pop!
 
-    @viewport\pop!
 
   update: (dt) =>
     return if PAUSED
