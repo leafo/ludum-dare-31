@@ -164,6 +164,8 @@ class Enemy extends Entity
         wait delay
 
 class Drone extends Enemy
+  speed: 100
+
   draw_inner: =>
     @draw_core!
 
@@ -201,6 +203,18 @@ class Shooter extends Enemy
     g.pop!
 
     @draw_hitbox!
+
+  make_ai: =>
+    do return
+    Sequence ->
+      wait 2 + randomNormal!
+      if love.math.random! > 0.9
+        @shoot!
+      else
+        @shoot_sweep!
+
+      wait 2 + randomNormal!
+      again!
 
 class Charger extends Enemy
   aggression: 1
@@ -272,16 +286,15 @@ class Boss extends Enemy
     g.pop!
 
 class Spawner extends Sequence
-  speed: 100
-
-  enemy_types: {
-  }
+  speed: 200
+  sight: 600
+  is_spawner: true
 
   active: false
 
   new: (...) =>
     super ...
-    @range = Box 0,0, 200, 80
+    @range = Box 0,0, @sight, 80
     @range.x = @x - @range.w
     @vel = Vec2d(-1, 0) * @speed
 
@@ -300,6 +313,7 @@ class Spawner extends Sequence
     if not @active
       for touching in *world.collider\get_touching @range
         continue unless touching.is_player
+        world\first_enemies!
         @active = true
 
     if @active
@@ -330,13 +344,13 @@ class ChainSpawner extends Spawner
         wait 0.1
 
 class SingleSpawner extends Spawner
-  new: (@world, @x, @y, @obj) =>
+  new: (@world, @enemy_cls, @x, @y) =>
     super ->
       @add_enemy!
       wait 0.1 -- lame hack
 
   add_enemy: =>
-    enemy_cls = Drone
+    enemy_cls = Shooter
     @world.entities\add enemy_cls @x, @y
 
 {

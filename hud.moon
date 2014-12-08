@@ -119,6 +119,11 @@ class Hud extends Box
         "disabled"
 
   draw: =>
+    @draw_default!
+
+  draw_game_over: =>
+
+  draw_default: =>
     g.push!
     g.translate @x, @y
     @bin\draw!

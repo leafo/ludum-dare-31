@@ -148,6 +148,8 @@ class Player extends Entity
   speed: 60
   shielded: false
 
+  immune: false
+
   w: 10
   h: 5
 
@@ -292,9 +294,10 @@ class Player extends Entity
     button\set_level @upgrades[what], false
 
   upgrade: (what) =>
-    error "BOOM" if what == "boom"
 
     AUDIO\play "upgrade"
+
+    return if what == "boom"
 
     if @upgrades[what] + 1 > @max_upgrades[what]
       return false

@@ -59,19 +59,18 @@ class World
 
   stage_height: 80
   stage_speed: 0.05
-  time_mult: 0
+  time_mult: 0.1
   shake: 0
 
   maps: {}
 
   mousepressed: (x, y, button) =>
+    return unless button == "m"
     x,y = @viewport\unproject x,y
     for button in *@hud.all_buttons
       if button\touches_pt x - @hud.x, y - @hud.y
         @player\upgrade button.label
         return
-
-    @push_map "test"
 
   calculate: =>
     @viewport = EffectViewport scale: GAME_CONFIG.scale
@@ -148,7 +147,33 @@ class World
     @left_right_mesh = @create_corner_mesh divs, false, left_right\unpack2!
 
   stage_sequence: =>
+    import ChainSpawner, SingleSpawner from require "enemies"
+
+    waves = {
+      (...) ->
+        with ChainSpawner ...
+          .vel = Vec2d(-1, 0) * 500
+
+      (...) -> ChainSpawner ...
+
+      "test"
+    }
+
     @seqs\add Sequence ->
+      -- baked in waves
+      for wave in *waves
+        switch type(wave)
+          when "string"
+            print "doing map"
+            @push_map wave
+          when "function"
+            @push_spawner wave
+            wait 10
+        wait 1.0
+
+      print "going forver"
+
+      -- go forever
       while true
         action = pick_dist {
           map: if @map then nil else 1
@@ -164,7 +189,6 @@ class World
             @push_map "test"
 
         wait 1.0
-
 
   draw_corner_mesh: (mesh, x, y) =>
     g.push!
@@ -407,5 +431,9 @@ class World
   on_key: (key) =>
     if key == "p"
       PAUSED = not PAUSED
+
+  first_enemies: =>
+    AUDIO\play_music "music"
+    @first_enemies = ->
 
 { :World }
