@@ -436,4 +436,7 @@ class World
     AUDIO\play_music "music"
     @first_enemies = ->
 
+  restart: =>
+    DISPATCHER\replace World!
+
 { :World }

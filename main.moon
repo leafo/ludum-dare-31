@@ -40,5 +40,6 @@ love.load = ->
 
   export CONTROLLER = Controller GAME_CONFIG.keys, "auto"
   export DISPATCHER = Dispatcher World!
+  DISPATCHER.default_transition = FadeTransition
   DISPATCHER\bind love
 

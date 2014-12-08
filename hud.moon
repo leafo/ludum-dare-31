@@ -64,6 +64,7 @@ class Hud extends Box
   points: 0
   score: 0
   display_score: 0
+  fade_out: 0
 
   upgrades: {"speed", "distance", "shot", "option", "shield", "boom"}
 
@@ -71,6 +72,7 @@ class Hud extends Box
     super ...
 
     @all_buttons = [Button label for label in *@upgrades]
+    @seqs = DrawList!
 
     buttons = VList {
       HList [b for b in *@all_buttons[1,2]]
@@ -87,6 +89,11 @@ class Hud extends Box
       Label(-> "press 'c' upgrade '#{@upgrades[@points]}'"),
       0, 1
 
+    @game_over_label = Bin 0, 0, @w, @h, VList{
+      Label "game over"
+      Label "press 'x' to try again"
+    }, 0.5, 0.5
+
   add_score: (pts) =>
     @score += pts
 
@@ -100,17 +107,31 @@ class Hud extends Box
         return button
 
   update: (dt) =>
+    @seqs\update dt
     @bin\update dt
     @score_label\update dt
     @upgrade_label\update dt
+    @game_over_label\update dt
+
     @display_score = smooth_approach @display_score, @score, dt * 10
 
-    if @points > 0 and CONTROLLER\tapped "upgrade"
-      upgrade = @upgrades[@points]
-      if @world.player\upgrade upgrade
-        @points = 0
-      else
-        print "audio BUZZ"
+    if not @world.player.alive and not @game_over
+      @game_over = true
+      @seqs\add AUDIO\fade_music!
+
+      @seqs\add Sequence ->
+        tween @, 1.0, fade_out: 1
+
+    if @game_over
+      if CONTROLLER\tapped "confirm"
+        @world\restart!
+    else
+      if @points > 0 and CONTROLLER\tapped "upgrade"
+        upgrade = @upgrades[@points]
+        if @world.player\upgrade upgrade
+          @points = 0
+        else
+          print "audio BUZZ"
 
     for i, b in ipairs @all_buttons
       b.state = if i == @points
@@ -119,9 +140,31 @@ class Hud extends Box
         "disabled"
 
   draw: =>
+    if @fade_out == 0
+      @draw_default!
+      return
+
+    if @fade_out == 1
+      @draw_game_over!
+      return
+
+    COLOR\pusha (1 - @fade_out) * 255
     @draw_default!
+    COLOR\pop!
+
+    COLOR\pusha (@fade_out) * 255
+    @draw_game_over!
+    COLOR\pop!
+
 
   draw_game_over: =>
+    g.push!
+    g.translate @x, @y
+
+    @score_label\draw!
+    @game_over_label\draw!
+
+    g.pop!
 
   draw_default: =>
     g.push!
