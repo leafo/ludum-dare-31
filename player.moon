@@ -1,5 +1,7 @@
 {graphics: g} = love
 
+import BigExplosionEmitter from require "emitters"
+
 class Powerup extends Entity
   mixin HasEffects
   lazy sprite: => Spriter "images/sprites.png", 16, 16
@@ -14,6 +16,7 @@ class Powerup extends Entity
 
   take_hit: (thing) =>
     return if @dying
+
     if thing == @world.player
       AUDIO\play "powerup"
       @dying = true
@@ -207,6 +210,7 @@ class Player extends Entity
     AUDIO\play "player_die"
 
     @dying = true
+    @world.particles\add BigExplosionEmitter @world, @center!
     @effects\add BlowOutEffect 0.8, ->
       @world\end_anim!
       @alive = false
@@ -307,5 +311,8 @@ class Player extends Entity
     button\set_level @upgrades[what], is_max
     true
 
+  take_hit: (thing, world) =>
+    if thing.is_enemy_bullet
+      @die!
 
 { :Player, :Powerup }

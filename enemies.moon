@@ -3,6 +3,8 @@
 
 import randomNormal from love.math
 
+import ExplosionEmitter from require "emitters"
+
 class EnemyBullet extends Entity
   is_enemy_bullet: true
 
@@ -28,21 +30,6 @@ class EnemyBullet extends Entity
   update: (dt, world)=>
     super dt, world
     @alive
-
-class ExplosionParticle extends ImageParticle
-  life: 0.2
-  w: 16
-  h: 16
-  lazy sprite: => Spriter "images/sprites.png", 16, 16
-  quad: 4
-
-class ExplosionEmitter extends Emitter
-  count: 10
-  make_particle: =>
-    with ExplosionParticle @x, @y
-      .vel = Vec2d(0, -60)\random_heading(360)
-      .scale = 1 + randomNormal! / 2
-      .accel = Vec2d(0, 200 * randomNormal!)
 
 class Enemy extends Entity
   mixin HasEffects
