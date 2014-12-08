@@ -127,11 +127,12 @@ class Option extends Entity
     x = @x + @w / 2 - Bullet.w / 2
     y = @y + @h / 2 - Bullet.h / 2
 
-    @world.bullets\add Bullet @ship\bullet_life!, x,y
+    if @world
+      @world.bullets\add Bullet @ship\bullet_life!, x,y
 
-    @shoot_timer = @seqs\add Sequence ->
-      wait @ship\bullet_rate!
-      @shoot_timer = nil
+      @shoot_timer = @seqs\add Sequence ->
+        wait @ship\bullet_rate!
+        @shoot_timer = nil
 
   draw: =>
     g.push!
@@ -297,7 +298,7 @@ class Player extends Entity
 
     AUDIO\play "upgrade"
 
-    return if what == "boom"
+    return true if what == "boom"
 
     if @upgrades[what] + 1 > @max_upgrades[what]
       return false

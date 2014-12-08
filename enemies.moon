@@ -81,6 +81,7 @@ class Enemy extends Entity
     error "replace me"
 
   die: =>
+    return unless @world
     @world.hud\add_score @score
     @dying = true
     @world.particles\add ExplosionEmitter @world, @center!
