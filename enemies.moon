@@ -272,6 +272,8 @@ class Boss extends Enemy
     g.pop!
 
 class Spawner extends Sequence
+  speed: 100
+
   enemy_types: {
   }
 
@@ -281,6 +283,7 @@ class Spawner extends Sequence
     super ...
     @range = Box 0,0, 200, 80
     @range.x = @x - @range.w
+    @vel = Vec2d(-1, 0) * @speed
 
   draw: =>
     if DEBUG and @world
@@ -291,6 +294,7 @@ class Spawner extends Sequence
       COLOR\pop!
 
   update: (dt, @world) =>
+    @x += dt * @vel[1]
     @range.x = @x - @range.w
 
     if not @active

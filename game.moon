@@ -10,7 +10,6 @@ graphics_err_msg = table.concat {
 import StarField from require "background"
 import Player, Powerup from require "player"
 import Hud from require "hud"
-import ChainSpawner, SingleSpawner from require "enemies"
 import GlowShader from require "shaders"
 import ScrollingMap from require "maps"
 
@@ -148,6 +147,25 @@ class World
     @left_left_mesh = @create_corner_mesh divs, true, left_left\unpack2!
     @left_right_mesh = @create_corner_mesh divs, false, left_right\unpack2!
 
+  stage_sequence: =>
+    @seqs\add Sequence ->
+      while true
+        action = pick_dist {
+          map: if @map then nil else 1
+          spawner: 2
+        }
+
+        switch action
+          when "spawner"
+            import ChainSpawner from require "enemies"
+            @push_spawner ChainSpawner
+            wait 10
+          when "map"
+            @push_map "test"
+
+        wait 1.0
+
+
   draw_corner_mesh: (mesh, x, y) =>
     g.push!
     g.translate x,y
@@ -226,12 +244,17 @@ class World
 
     @shader = GlowShader @stage_extent
 
+    @seqs\add @stage_sequence!
+
   get_map: (name) =>
     unless @maps[name]
       @maps[name] = ScrollingMap\from_tiled "maps.test"
       @maps[name]\autotile!
 
     @maps[name]
+
+  push_spawner: (cls) =>
+    @spawners\add cls @, @stage_extent.w, 40
 
   push_map: (name) =>
     return if @map
@@ -348,6 +371,10 @@ class World
 
     @time += dt * @stage_speed * @time_mult
     @time -= 1 if @time > 1
+
+    -- see if map can be removed
+    if @map and @map.scroll_offset + @map.real_width < 0
+      @map = nil
 
     @collider\clear!
     for e in *@entities
