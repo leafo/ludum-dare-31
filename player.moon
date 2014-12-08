@@ -83,12 +83,13 @@ class Bullet extends Entity
   update: (dt, world) =>
     super dt, world
 
-    -- kill if hitting map, play tick?
-    -- world.stage_extent\touches_box @
+    if world.map and world.map\collides @
+      AUDIO\play "bullet_hit_wall"
+      @alive = false
 
     @life -= dt
     alive = @life > 0
-    alive
+    @alive and alive
 
   draw: =>
     @sprite\draw 1, @x - @ox, @y - @oy
