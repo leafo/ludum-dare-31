@@ -1,7 +1,7 @@
 {graphics: g} = love
 
 class ScrollingMap extends TileMap
-  target_speed: 10
+  target_speed: 100
   speed: 0
   scroll_offset: 0
 
@@ -48,32 +48,27 @@ class ScrollingMap extends TileMap
 
   draw: (box) =>
     g.push!
-    g.translate -math.floor(@scroll_offset), 0
+    g.translate math.floor(@scroll_offset), 0
 
     adjusted_box = Box box\unpack!
-    adjusted_box\move @scroll_offset, 0
+    adjusted_box\move -@scroll_offset, 0
 
     super adjusted_box
     g.pop!
 
   collides: (thing) =>
     thing = thing.box or thing
-    x1, y1, x2, y2 = thing\unpack2!
+    -- move to map coordinate syste:
+    x1, y1, w, h = thing\unpack!
+    adjusted = Box x1 - @scroll_offset, y1, w,h
+    unless adjusted\touches_box @to_box!
+      return false
 
-    x1 += @scroll_offset
-    x2 += @scroll_offset
-    @player_box = Box x1, y1, x2 - x1 , y2 - y1
-
-    super x1, y1, x2, y2
+    super adjusted
 
   update: (dt, @world) =>
-    @target_speed = if love.keyboard.isDown "e"
-      500
-    else
-      10
-
     super dt
     @speed = smooth_approach @speed, @target_speed, dt
-    @scroll_offset += dt * @speed
+    @scroll_offset += dt * -@speed
 
 { :ScrollingMap }

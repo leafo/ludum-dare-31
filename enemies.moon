@@ -126,6 +126,7 @@ class Enemy extends Entity
       g.pop!
 
   make_ai: =>
+    do return
     Sequence ->
       wait 2 + randomNormal!
       if love.math.random! > 0.5
@@ -285,12 +286,12 @@ class Spawner extends Sequence
     if DEBUG and @world
       COLOR\push 0,100,255
       g.setPointSize 5
-      g.point @x - @world.map.scroll_offset, @y
+      g.point @x, @y
       g.rectangle "line", @range\unpack!
       COLOR\pop!
 
   update: (dt, @world) =>
-    @range.x = @x - @range.w - world.map.scroll_offset
+    @range.x = @x - @range.w
 
     if not @active
       for touching in *world.collider\get_touching @range

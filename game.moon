@@ -63,6 +63,8 @@ class World
   time_mult: 0
   shake: 0
 
+  maps: {}
+
   mousepressed: (x, y, button) =>
     x,y = @viewport\unproject x,y
     for button in *@hud.all_buttons
@@ -70,7 +72,7 @@ class World
         @player\upgrade button.label
         return
 
-    @player\die!
+    @push_map "test"
 
   calculate: =>
     @viewport = EffectViewport scale: GAME_CONFIG.scale
@@ -222,21 +224,19 @@ class World
     @entities\add @edge_left
     @entities\add @edge_right
 
-    @map = ScrollingMap\from_tiled "maps.test", {
-      object: (o) ->
-        spawner_types = {
-          single: SingleSpawner
-          chain: ChainSpawner
-        }
-
-        if spawner = spawner_types[o.name]
-          @spawners\add spawner @, o.x, o.y, o
-    }
-
-    @map\autotile!
-
-    @map_box = @map\to_box!
     @shader = GlowShader @stage_extent
+
+  get_map: (name) =>
+    unless @maps[name]
+      @maps[name] = ScrollingMap\from_tiled "maps.test"
+      @maps[name]\autotile!
+
+    @maps[name]
+
+  push_map: (name) =>
+    return if @map
+    @map = @get_map(name)
+    @map.scroll_offset = @stage_extent.w
 
   end_anim: (callback) =>
     @seqs\add Sequence ->
@@ -253,7 +253,8 @@ class World
     @stage_canvas\clear 10, 13, 20
 
     @background\draw!
-    @map\draw @stage_extent
+    if @map
+      @map\draw @stage_extent
 
     @entities\draw!
     @spawners\draw!
@@ -335,7 +336,7 @@ class World
   update: (dt) =>
     return if PAUSED
 
-    @map\update dt, @
+    @map\update dt, @ if @map
     @entities\update dt, @
     @bullets\update dt, @
     @particles\update dt, @
@@ -368,7 +369,7 @@ class World
           thing\take_hit @player, @
 
       -- see if player hitting map
-      if @map\collides @player
+      if @map and @map\collides @player
         @player\die!
 
     @viewport\update dt
