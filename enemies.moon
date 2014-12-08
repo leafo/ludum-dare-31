@@ -141,7 +141,9 @@ class Enemy extends Entity
   make_ai: =>
     Sequence ->
       wait 2 + randomNormal!
-      @shoot!
+      if love.math.random! > 0.5
+        -- @shoot!
+        @shoot_sweep!
       again!
 
   -- points to player
@@ -158,9 +160,20 @@ class Enemy extends Entity
   shoot: =>
     @add_bullet @shoot_dir!
 
-  shoot_sweep: =>
-    @shooting = @seqs\add Sequence ->
+  shoot_sweep: (bullets=5, degs=40, delay=0.2) =>
+    rads = math.rad degs
 
+    @shooting = @seqs\add Sequence ->
+      dir = @shoot_dir!
+      half = rads/2
+      spin_dir = pick_one(-1, 1)
+      spin_step = rads/bullets
+      dir = dir\rotate -spin_dir * half
+
+      for i=1,bullets
+        @add_bullet dir
+        dir = dir\rotate spin_step * spin_dir
+        wait delay
 
 class Drone extends Enemy
   draw_inner: =>
